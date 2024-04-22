@@ -1,3 +1,7 @@
+Script Rmarkdown associé :
+- [4_IBS_IBD_KINSHIP_Rmd](scripts/Stage_M2_NB_4_IBS_IBD_KINSHIP.Rmd)
+- [4_IBS_IBD_KINSHIP_html](scripts/Stage_M2_NB_4_IBS_IBD_KINSHIP.html)
+
 ## Chargement des packages R
 
 ```{r}
