@@ -17,7 +17,8 @@ wc -l E756_BeeMuSe.map
 Le jeu de données BeeMuSe correspond à 12000 SNPs pour 748 échantillons
 
 ## Conversion au format plink
-- convertnumchrmap.sh
+
+- convertplinkbeemuse.sh
 
 ```
 #!/bin/bash
@@ -62,23 +63,17 @@ done < "$input_map" > "$output_map"
 
 ## Conversion en fichiers .bim, .bed et .fam
 
--makebedbeemuse.sh
+- makebedbeemuse.sh
 ```
 #!/bin/bash
 module load bioinfo/PLINK/1.90b7
 
-plink --file E756_BeeMuSe_num_chr --make-bed --no-parents --no-sex --no-pheno
+sed 's/-/ /g' E756_BeeMuSe_num_chr.ped > E756_BeeMuSe_num_chr_2.ped
+plink --file E756_BeeMuSe_num_chr_2 --make-bed --no-parents --no-sex --no-pheno -out BeeMuse
+```
 
-less -S +376 E756_BeeMuSe_num_chr.ped
-```
-2 colonnes puis 1 à cause de '-' au lieu de ' '
-```
-sed 's/-/ /g' E756_BeeMuSe_num_chr.ped > E756_BeeMuSe_num_chr_2col.ped
-
-module load bioinfo/PLINK/1.90b7
-plink --file E756_BeeMuSe_num_chr_2col --make-bed --no-parents --no-sex --no-pheno -out BeeMuse
-```
 ## ACP
+
 - acpbeemuse.sh
 ```
 #!/bin/bash
@@ -121,6 +116,7 @@ echo "done"
 
 ## ACP
 
+- acpseqapipop.sh
 ```
 #!/bin/bash
 module load bioinfo/PLINK/2.00a4
@@ -130,8 +126,6 @@ plink2 --bfile subset_501_samples_ref --pca --nonfounders --out subset_501_sampl
 
 echo "done"
 ```
-sbatch acp501samples.bash
-squeue -u nbettembour
 
 Refaire la même chose seulement reference populations
 ```
