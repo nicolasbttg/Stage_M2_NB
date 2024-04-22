@@ -109,7 +109,7 @@ wget https://zenodo.org/record/5592452/files/MetaGenotypesCalled870_raw_snps_all
 zcat MetaGenotypesCalled870_raw_snps_allfilter.vcf.gz | head
 ```
 
-# Conversion du fichier VCF au format plink (.bed, .bim, .fam)
+## Conversion du fichier VCF au format plink (.bed, .bim, .fam)
 
 - vcftoplink.sh
 ```
@@ -166,27 +166,32 @@ Effectuer l'ACP sur les données filtrées
 
 - acpBeeMusesamples.sh
 
-ACP merged data : RefPop + BeeMuse puce 12000 SNPs
 
-BeeMuse_filtered
-subset_RefPop_samples
-
- head BeeMuse_filtered.bim 
+# Merged Data - Fusion des deux jeux de données
+```
+ head BeeMuse_filtered.bim
+```
 1	AX-643871392	0	14449	A	G
 1	AX-643872730	0	31950	C	T
 1	AX-643872782	0	36727	T	C
 
+```
  head subset_RefPop_samples.bim
+```
 NC_037638.1	.	0	5671	C	T
 NC_037638.1	.	0	5698	C	T
 NC_037638.1	.	0	6621	G	A
 
+```
 head BeeMuse_filtered.fam
+```
 Beemuse_Pool 100_C2.CEL 0 0 0 -9
 Beemuse_Pool 102_G2.CEL 0 0 0 -9
 Beemuse_Pool 103_I2.CEL 0 0 0 -9
 
+```
 head subset_RefPop_samples.fam
+```
 0	Ab-PacBio	0	0	0	-9
 0	BER10	0	0	0	-9
 0	BER11	0	0	0	-9
@@ -220,20 +225,6 @@ bgzip E756_BeeMuSe.vcf
 tabix -p vcf E756_BeeMuSe.vcf.gz
 ```
 
-#CHROM  POS     ID      REF     ALT     QUAL    FILTER  INFO    FORMAT  Beemuse_Pool 100_C2.CEL Beemuse_Pool 102_G2.CEL Beemuse_Pool 103_I2.CEL Beemuse_Pool 104_K2.CEL Beemuse_Pool 105_M2.CEL Beemuse_Po>
-17      752     AX-643870442    N       .       .       FAIL    CR=98;ConversionType=Other      GT      ./.     ./.     ./.     ./.     ./.     ./.     ./.     ./.     ./.     ./.     ./.     ./.     ./>
-17      1454    AX-643891109    N       .       .       FAIL    CR=100;ConversionType=Other     GT      ./.     ./.     ./.     ./.     ./.     ./.     ./.     ./.     ./.     ./.     ./.     ./.     ./>
-
-#CHROM  POS     ID      REF     ALT     QUAL    FILTER  INFO    FORMAT  Ab-PacBio       BER10   BER11   BER12   BER13   BER14   BER15   BER16   BER17   BER18   BER19   BER2    BER21   BER4    BER5    BE>
-1       5671    .       T       C       332.46  .       AC=0;AF=0.001196;AN=576;BaseQRankSum=-0.969;DP=13376;ExcessHet=0.013;FS=4.15;InbreedingCoeff=0.0188;MLEAC=1;MLEAF=0.0005981;MQ=52.1;MQRankSum=1.51>
-1       5698    .       T       C       3633.8  .       AC=0;AF=0.004779;AN=576;BaseQRankSum=0.544;DP=12793;ExcessHet=0.0011;FS=0;InbreedingCoeff=0.0802;MLEAC=9;MLEAF=0.005376;MQ=50.23;MQRankSum=3.5;QD=>
-
-script merge
-
-
-#refaire bim bed fam en ayant changé ID chromosomes même que BeeMuse ?
-sbatch vcftoplink.bash
-
 ```
 grep -c '^NC_' subset_RefPop_samples_ref.vcf
 ```
@@ -242,8 +233,24 @@ grep -c '^NC_' subset_RefPop_samples_ref.vcf
 grep -c '^NC_' E756_BeeMuSe.vcf
 ```
 12000
+```
+head E756_BeeMuSe.vcf
+```
+#CHROM  POS     ID      REF     ALT     QUAL    FILTER  INFO    FORMAT  Beemuse_Pool 100_C2.CEL Beemuse_Pool 102_G2.CEL Beemuse_Pool 103_I2.CEL Beemuse_Pool 104_K2.CEL Beemuse_Pool 105_M2.CEL Beemuse_Po>
+17      752     AX-643870442    N       .       .       FAIL    CR=98;ConversionType=Other      GT      ./.     ./.     ./.     ./.     ./.     ./.     ./.     ./.     ./.     ./.     ./.     ./.     ./>
+17      1454    AX-643891109    N       .       .       FAIL    CR=100;ConversionType=Other     GT      ./.     ./.     ./.     ./.     ./.     ./.     ./.     ./.     ./.     ./.     ./.     ./.     ./>
 
-# comment faire lien list_markers_ID_to_keep et RefPop csv ? - BeeMuse.csv ?
+```
+head subset_RefPop_samples_ref.vcf
+```
+#CHROM  POS     ID      REF     ALT     QUAL    FILTER  INFO    FORMAT  Ab-PacBio       BER10   BER11   BER12   BER13   BER14   BER15   BER16   BER17   BER18   BER19   BER2    BER21   BER4    BER5    BE>
+1       5671    .       T       C       332.46  .       AC=0;AF=0.001196;AN=576;BaseQRankSum=-0.969;DP=13376;ExcessHet=0.013;FS=4.15;InbreedingCoeff=0.0188;MLEAC=1;MLEAF=0.0005981;MQ=52.1;MQRankSum=1.51>
+1       5698    .       T       C       3633.8  .       AC=0;AF=0.004779;AN=576;BaseQRankSum=0.544;DP=12793;ExcessHet=0.0011;FS=0;InbreedingCoeff=0.0802;MLEAC=9;MLEAF=0.005376;MQ=50.23;MQRankSum=3.5;QD=>
+
+On a ici deux formats différents pour les fichiers VCF de SeqApiPop et BeeMuSe, dont un issu de génotypage par séquençage et l'autre de génotypage par puce de 12000 SNPs.
+On va créer les fichiers fusionnés .bim, .bed, .fam en ayant attribué les mêmes identifiants de marqueurs de BeeMuSe à ceux en commun avec SeqApiPop.
+
+## Lien list_markers_ID_to_keep (SeqApiPop - BeeMuse)
 
 - script Python dico_CHR_POS_ID.py
 ``` 
@@ -334,8 +341,7 @@ NC_037638.1_31950: .
 
 NC_037638.1_36727: .
 
-
-Combien de marqueurs en commun ? 
+- Combien y-a-t-il de marqueurs en commun ? 
 ```
 grep 'AX-' list_markers_ID_to_keep.txt | wc -l
 ```
@@ -349,9 +355,10 @@ grep 'AX-' subset_RefPop_samples_ref_2.vcf | wc -l
 ```
 => 11709
 
-bim bed fam 
+On a 11709 marqueurs en commun entre E756_BeeMuSe.vcf et subset_RefPop_samples_ref_2.vcf
 
-- vcftoplinkRefPop
+- vcftoplinkRefPop.sh
+
 - extractlistmarkersID.sh
 ```
 #!/bin/bash
@@ -363,30 +370,33 @@ plink --bfile subset_RefPop_samples_ref_2 --extract list_markers_ID_to_keep.txt 
 ```
 grep 'AX-' list_markers_ID_to_keep.txt | wc -l
 ```
-=> 10256  
+**10256** SNPs
 ```
 grep 'AX-' BeeMuse_filtered.bim | wc -l
 ```
-12000 => 10256
+12000 => **10256** SNPs
 ```
 grep 'AX-' subset_RefPop_samples_filtered.bim | wc -l
 ```
-7023976 => 11709 => 10030
+7023976 => 11709 => **10030** SNPs
+
+Soit **10030** SNPs filtrés en commun entre les 7023976 SNPs du jeu de données de référence des 870 échantillons SeqApiPop et les 10256 SNPs de bonne qualité à garder de la puce BeeMuSe.
 
 - maf001.sh
 ```
 #! /bin/bash
 module load bioinfo/PLINK/1.90b7
 
-plink --bfile ${VCFout} \
+NAME=_
+plink --bfile ${NAME} \
   --maf 0.01 \
-  --out ${VCFout}_maf001 \
+  --out ${NAME}_maf001 \
   --make-bed
 ```
 
- Filtre LD03 
+ Filtre LD par défault
  
-- filterLD03.sh
+- filterLD.sh
 ```
 #! /bin/bash
 
@@ -394,17 +404,17 @@ module load bioinfo/PLINK/1.90b7
 module load bioinfo/PLINK/2.00a4
 
 NAME1=subset_RefPop_samples_maf001
-NAME2=subset_RefPop_samples_maf001_LD03
+NAME2=subset_RefPop_samples_maf001_LD_default
 
 plink --bfile ${NAME1} \
   --out ${NAME2} \
-  --indep-pairwise 1749 175 0.3
+  --indep-pairwise 50 10 0.1
 
 plink --bfile ${NAME1} \
   --out ${NAME2}_pruned \
   --extract ${NAME2}.prune.in \
   --make-bed
 
-plink2 --bfile subset_RefPop_samples_maf001_LD03_pruned --make-rel square --nonfounders --out subset_RefPop_samples_maf001_LD03_acp --allow-extra-chr
-plink2 --bfile subset_RefPop_samples_maf001_LD03_pruned --pca --nonfounders --out subset_RefPop_samples_ref_maf001_acp --allow-extra-chr
+plink2 --bfile subset_RefPop_samples_maf001_LD_default_pruned --make-rel square --nonfounders --out subset_RefPop_samples_maf001_LD_default_acp --allow-extra-chr
+plink2 --bfile subset_RefPop_samples_maf001_LD_default_pruned --pca --nonfounders --out subset_RefPop_samples_ref_maf001_LD_default_acp --allow-extra-chr
 ```
