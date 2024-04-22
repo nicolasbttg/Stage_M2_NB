@@ -64,11 +64,7 @@ plink --file E756_BeeMuSe_num_chr --make-bed --no-fid --no-parents --no-sex --no
 ```
 wc -l E756_BeeMuSe.map
 ```
-12000 lignes
-```
-head -n 2 E756_BeeMuSe.ped | awk '{print NF}'
-```
-24000 lignes
+12000 SNPs
 
 ## Conversion en fichiers .bim, .bed et .fam
 ```
@@ -228,11 +224,11 @@ tabix -p vcf E756_BeeMuSe.vcf.gz
 ```
 grep -c '^NC_' subset_RefPop_samples_ref.vcf
 ```
-7023976
+7 023 976 SNPS
 ```
 grep -c '^NC_' E756_BeeMuSe.vcf
 ```
-12000
+12000 SNPs
 ```
 head E756_BeeMuSe.vcf
 ```
@@ -358,6 +354,18 @@ grep 'AX-' subset_RefPop_samples_ref_2.vcf | wc -l
 On a 11709 marqueurs en commun entre E756_BeeMuSe.vcf et subset_RefPop_samples_ref_2.vcf
 
 - vcftoplinkRefPop.sh
+```
+#!/bin/bash
+#SBATCH --mem=8G
+
+module load bioinfo/Bcftools/1.9
+module load bioinfo/PLINK/2.00a4
+
+bcftools norm -m-any --output-type z -o subset_501_samples_ref_split.vcf.gz subset_501_samples_ref.vcf
+plink2 --vcf subset_501_samples_ref_split.vcf.gz --make-bed --out subset_501_samples_ref --allow-extra-chr
+
+echo "done"
+```
 
 - extractlistmarkersID.sh
 ```
