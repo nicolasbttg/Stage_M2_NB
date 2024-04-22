@@ -94,6 +94,7 @@ plink2 --bfile BeeMuse --make-rel square --nonfounders
 plink2 --bfile BeeMuse --pca  --nonfounders
 ```
 # SeqApiPop
+## Obtention des données
 - Récupérer les fichiers de référence SeqApiPop (Wragg et al., 2021), avec le fichier VCF de 7 023 689 SNPs des 870 échantillons d'abeilles domestiques et la liste des 629 échantillons de référence pour les analyses de structure des populations à extraire depuis [zenodo](https://zenodo.org/records/5592452)
 > Diversity_Study_629_Samples.txt
 
@@ -108,7 +109,7 @@ wget https://zenodo.org/record/5592452/files/MetaGenotypesCalled870_raw_snps_all
 zcat MetaGenotypesCalled870_raw_snps_allfilter.vcf.gz | head
 ```
 
-# VCF => plink .bed .bim .fam
+# Conversion du fichier VCF au format plink (.bed, .bim, .fam)
 
 - vcftoplink.sh
 ```
