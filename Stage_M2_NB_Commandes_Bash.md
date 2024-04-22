@@ -100,18 +100,262 @@ zcat MetaGenotypesCalled870_raw_snps_allfilter.vcf.gz | head
 
 ## Conversion du fichier VCF au format plink (.bed, .bim, .fam)
 
-- vcftoplink.sh
+- substForPlinkWrite.sh
 ```
 #!/bin/bash
-#SBATCH --mem=8G
 
+#substForPlinkWrite.bash
+
+printf "#!/bin/bash\n\n"
+
+printf "cp MetaGenotypesCalled870_raw_snps_allfilter.vcf MetaGenotypesCalled870_raw_snps_allfilter_plink.vcf\n\n"
+
+j=0
+for i in `cut -f1 HAv3_1_Chromosomes.list`
+do
+j=$((j+1))
+printf "sed -i \'s/${i}/${j}/g\' MetaGenotypesCalled870_raw_snps_allfilter_plink.vcf\n"
+done
+```
+```
+bash substForPlinkWrite.bash > substForPlink.bash
+```
+```
+grep -v '^#' MetaGenotypesCalled870_raw_snps_allfilter_plink.vcf | wc -l
+```
+=> **7 023 976** SNPs
+
+
+- select629.sh
+```
+#! /bin/bash
+#select629.sh
+
+module load bioinfo/PLINK/1.90b7
 module load bioinfo/Bcftools/1.9
-module load bioinfo/PLINK/2.00a4
 
-bcftools norm -m-any --output-type z -o subset_501_samples_ref_split.vcf.gz subset_501_samples_ref.vcf
-plink2 --vcf subset_501_samples_ref_split.vcf.gz --make-bed --out subset_501_samples_ref --allow-extra-chr
+bcftools view -S Diversity_Study_629_Samples.txt MetaGenotypesCalled870_raw_snps_allfilter_plink.vcf > MetaGenotypesCalled870_raw_snps_allfilter_plink_629.vcf 
 
-echo "done"
+NAME=SeqApiPop_629
+
+VCFin=MetaGenotypesCalled870_raw_snps_allfilter_plink_629.vcf
+VCFout=${NAME}
+
+plink --vcf ${VCFin} \
+  --keep-allele-order \
+  --a2-allele ${VCFin} 4 3 '#' \
+  --allow-no-sex \
+  --allow-extra-chr \
+  --chr-set 16 \
+  --set-missing-var-ids @:#[HAV3.1]\$1\$2 \
+  --chr 1-16 \
+  --mind 0.1 \
+  --geno 0.1 \
+  --out ${VCFout} \
+  --make-bed \
+  --missing
+
+plink --bfile ${VCFout} \
+  --maf 0.01 \
+  --out ${VCFout}_maf001 \
+  --make-bed
+```
+
+Une liste de 629 échantillons est sélectionnée pour les analyses de structure des populations en enlevant :
+- Les échantillons dupliqués d'une même ruche
+- Les échantillons des sous-populations expérimentales
+- Les échantillons d'une autre étude
+- Les 15 échantillons avec > 0,1 de données manquantes.
+
+- select629_LD.sh
+```
+#! /bin/bash
+#select629_LD.sh
+
+module load bioinfo/PLINK/1.90b7
+
+NAME1=SeqApiPop_629_maf001
+NAME2=SeqApiPop_629_maf001_LD03
+
+plink --bfile ${NAME1} \
+  --out ${NAME2} \
+  --indep-pairwise 1749 175 0.3
+
+plink --bfile ${NAME1} \
+  --out ${NAME2}_pruned \
+  --extract ${NAME2}.prune.in \
+  --make-bed
+
+plink --bfile ${NAME2}_pruned \
+  --out ${NAME2}_acp \
+  --pca
+
+plink --bfile ${NAME2}_pruned \
+  --out ${NAME2}_acp \
+  --make-rel square
+```
+
+- launchAdmixtureRunsWriteScriptsMAF001.bash
+```
+#!/bin/bash
+#launchAdmixtureRunsWriteScriptsMAF001.sh
+
+LD=LD03
+
+for i in $(seq 00 29)
+do
+mkdir SeqApiPop_629_MAF001_${LD}rep${i}
+
+echo \#!/bin/bash > SeqApiPop_629_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo
+echo \#admixtureAnalysis_multiThread.sh >> SeqApiPop_629_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo >> SeqApiPop_629_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo module load bioinfo/ADMIXTURE/1.3.0
+ >> SeqApiPop_629_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo >> SeqApiPop_629_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo IN=SeqApiPop_629_maf001_${LD}_pruned.bed >> SeqApiPop_629_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo >> SeqApiPop_629_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo "for K in 2 3 4 5 6 7 8 9 10 11 12;" >> SeqApiPop_629_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo do >> SeqApiPop_629_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo -e sbatch --cpus-per-task=4 --mem-per-cpu=4G \\ >> SeqApiPop_629_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo -e "	-J \${K}admixt -o \${IN}.\${K}.o -e \${IN}.\${K}.e" \\ >> SeqApiPop_629_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo -en '	--wrap="admixture --cv'  >> SeqApiPop_629_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo -en " -s ${RANDOM}"  >> SeqApiPop_629_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo  -e ' ../${IN} ${K} -j4 | tee ${IN}.log${K}"' >> SeqApiPop_629_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo done >> SeqApiPop_629_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+
+done
+```
+
+- obtainCVerrorAllSeqApiPop.sh
+```
+#!/bin/bash
+
+#obtainCVerrorAllSeqApiPop.bash
+
+for i in `ls | grep ^SeqApiPop`
+do
+grep CV ${i}/*log* | \
+	awk -v var="$i" 'BEGIN{OFS="\t"}{print $3,$4, var}' | \
+	sed 's/(K=//' | \
+	sed 's/)://' | \
+	awk 'BEGIN{FS="_";OFS="\t"}{print $1,$4,$3}' | \
+	awk 'BEGIN{OFS="\t"}{print $1,$2,$4,$5}'
+done
+```
+
+
+
+- remaneQmatrixes.bash
+```
+#!/bin/bash
+#renameQmatrixes.sh
+
+#copies and renames the Q matrix outputs in the directory Qfiles
+
+#Edit
+
+MAF=MAF001
+
+for h in $(seq 3 3)
+do
+    	LD=LD0${h}
+    	for i in $(seq 0 49)
+    	do
+            	for j in `ls SeqApiPop_629_${MAF}_${LD}rep${i}/ | grep Q$`
+            	do
+                    	cp SeqApiPop_629_${MAF}_${LD}rep${i}/${j}  Qfiles/${j%.*}.r${i}.Q
+            	done
+            	#echo ${i}
+    	done
+done
+```
+
+Obtenir les erreurs de CV
+```
+grep "CV" *log* | awk '{print $3,$4}' | sed -e 's/(//;s/)//;s/://;s/K=//'  > SeqApiPop_629_maf001_LD03_0.cv.error
+
+```
+Créer le fichier pong avec les matrices Q Admixture
+```
+ls  ../Qfiles/* | \
+	grep LD03 | \
+	awk 'BEGIN{FS="/";OFS="\t"}{print $3, $0}' | \
+	awk 'BEGIN{FS=".";OFS="\t"}{print $1"_"$2"_"$3"_"$4, $2, ".."$6"."$7"."$8"."$9}' | \
+	awk 'BEGIN{OFS="\t"}{print $1,$2,$3}' > pong_filemap_629_maf001_LD03_K2K12
+```
+### PONG
+
+```
+awk '{print $1}' SeqApiPop_629_maf001_LD03_pruned.fam > ind2pop_629.list
+
+awk -F',' 'NR==FNR{a[$1]=$5; next} {print a[$1]}' SeqApiPop_labels.csv ind2pop_629.list > ind2pop_629_Label.list
+awk -F',' 'NR==FNR{a[$1]=$6; next} {print a[$1]}' SeqApiPop_labels.csv ind2pop_629.list > ind2pop_629_GeographicOrigin.list
+
+sed -i 's/ /_/g' ind2pop_629_Label.list
+sed -i 's/ /_/g' ind2pop_629_GeographicOrigin.list
+```
+
+```
+Iberiensis_Spain IberiensisSpain
+Ouessant_Conservatory MelliferaOuessant
+Colonsay_Conservatory MelliferaColonsay
+Porquerolles_Conservatory MelliferaPorquerolles
+Sollies_Conservatory MelliferaSollies
+Savoy_Conservatory SavoyConservatory
+Ligustica_Italy LigusticaItaly
+Carnica_Slovenia CarnicaSlovenia
+Carnica_Germany CarnicaGermany
+Carnica_France CarnicaFrance
+Carnica_Switzerland CarnicaSwitzerland
+Carnica_Poland CarnicaPoland
+Caucasia_France CaucasiaFrance
+China China
+Royal_Jelly_France RoyalJellyFrance
+Corsica_Breeder Corsica
+Buckfast_France BuckfastFrance
+Buckfast_Switzerland BuckfastSwitzerland
+Tarn_1_Breeder Tarn1
+Tarn_2_Breeder Tarn2
+Hautes_Pyrenees_Breeder HautesPyrenees
+Ariege_Breeder AriegeBreeder
+Ariege_Conservatory AriegeConservatory
+Brittany_Conservatory BrittanyConservatory
+Brittany_Breeder BrittanyBreeder
+Isere_1_Breeder Isere1Breeder
+Isere_2_Breeder Isere2Breeder
+Herault_Breeder HeraultBreeder
+Sarthe_Breeder Sarthe
+Vaucluse_Breeder VaucluseBreeder
+Unknown Unknown
+```
+
+Création du fichier des couleurs pour la visualisation Admixture
+```
+touch colors
+nano colors
+```
+```
+black
+#FE9001
+#018a16
+#EDFE01
+#0603a6
+#FE0101
+#9B9B9B
+#A15D19
+#DEDAD7
+#FEB7F7
+#D09CFE
+#9CF4FE
+```
+On lance PONG pour K2 à K12 :
+```
+pong -m pong_filemap_629_maf001_LD03_K2K12 -n popOrder_629_Label.list -i ind2pop_629_Label.list -l colors -s 0.98
+```
+Pour K2 à K9 :
+```
+pong -m pong_filemap_629_maf001_LD03_K2K9 -n popOrder_629_Label.list -i ind2pop_629_Label.list -l colors -s 0.98
 ```
 
 ## ACP
