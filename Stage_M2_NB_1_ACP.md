@@ -1,3 +1,7 @@
+Script Rmarkdown associé :
+- [1_ACP_Rmd](scripts/Stage_M2_NB_1_ACP.Rmd)
+- [1_ACP_html](scripts/Stage_M2_NB_1_ACP.html)
+
 ## Chargement des packages R
 
 ```{r}
