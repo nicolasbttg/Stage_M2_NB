@@ -9,7 +9,8 @@ Les scripts R pour réaliser certaines analyses et obtenir les figures sont acce
 - [4_IBS_IBD_KINSHIP](scripts/Stage_M2_NB_4_IBS_IBD_KINSHIP.Rmd)
 
 
-# BeeMuSe - files
+# BeeMuSe
+## Conversion au format plink
 - convertnumchrmap.sh
 
 ```
@@ -68,6 +69,8 @@ wc -l E756_BeeMuSe.map
 head -n 2 E756_BeeMuSe.ped | awk '{print NF}'
 ```
 24000 lignes
+
+## Conversion en fichiers .bim, .bed et .fam
 ```
 module load bioinfo/PLINK/1.90b7
 plink --file E756_BeeMuSe_num_chr --make-bed --no-parents --no-sex --no-pheno
