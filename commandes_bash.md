@@ -250,7 +250,7 @@ head subset_RefPop_samples_ref.vcf
 On a ici deux formats différents pour les fichiers VCF de SeqApiPop et BeeMuSe, dont un issu de génotypage par séquençage et l'autre de génotypage par puce de 12000 SNPs.
 On va créer les fichiers fusionnés .bim, .bed, .fam en ayant attribué les mêmes identifiants de marqueurs de BeeMuSe à ceux en commun avec SeqApiPop.
 
-## Lien list_markers_ID_to_keep (SeqApiPop - BeeMuse)
+## Extraction des SNPs de bonne qualité à garder - list_markers_ID_to_keep.csv (SeqApiPop - BeeMuse)
 
 - script Python dico_CHR_POS_ID.py
 ``` 
