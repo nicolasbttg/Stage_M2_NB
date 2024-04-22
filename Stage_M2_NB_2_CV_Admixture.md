@@ -1,3 +1,7 @@
+Script Rmarkdown associé :
+- [2_CV_Admixture_Rmd](scripts/Stage_M2_NB_2_CV_Admixture.Rmd)
+- [2_CV_Admixture_html](scripts/Stage_M2_NB_2_CV_Admixture.html)
+  
 ## Chargement des packages R
 
 ```{r}
