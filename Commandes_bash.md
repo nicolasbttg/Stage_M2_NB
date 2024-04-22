@@ -4,7 +4,7 @@ Certains scripts et commandes sont issus depuis le GitHub pour [SeqApiPop](https
 
 Les scripts R pour réaliser certaines analyses et obtenir les figures sont accessibles au format Rmarkdown :
 - [1_ACP](scripts/Stage_M2_NB_1_ACP.Rmd)
-- [2_CV_Admixture](scripts/Stage_M2_NB_2_CV.Rmd)
+- [2_CV_Admixture](scripts/Stage_M2_NB_2_CV_Admixture.Rmd)
 - [3_FST](scripts/Stage_M2_NB_3_FST.Rmd)
 - [4_IBS_IBD_KINSHIP](scripts/Stage_M2_NB_4_IBS_IBD_KINSHIP.Rmd)
 
