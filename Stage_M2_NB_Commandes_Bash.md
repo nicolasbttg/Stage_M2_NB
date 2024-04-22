@@ -3,10 +3,10 @@ Certains scripts et commandes sont issus depuis le GitHub pour [SeqApiPop](https
 (Alain Vignal, David Wragg, Sonia E. Eynard, Benjamin Basso, Kamila Canale-Tabet, Emmanuelle Labarthe, Olivier Bouchez, Kaspar Bienefeld, Małgorzata Bieńkowska, Cecilia Costa, Aleš Gregorc, Per Kryger, Melanie Parejo, M. Alice Pinto, Jean-Pierre Bidanel, Bertrand Servin, & Yves Le Conte. (2021). Data from: Complex population structure and haplotype patterns in Western Europe honey bee from sequencing a large panel of haploid drones [Data set]. Zenodo. https://doi.org/10.5281/zenodo.5592452)
 
 Les scripts R pour réaliser certaines analyses et obtenir les figures sont accessibles au format Rmarkdown :
-- [1_ACP](scripts/Stage_M2_NB_1_ACP.Rmd)
-- [2_CV_Admixture](scripts/Stage_M2_NB_2_CV_Admixture.Rmd)
-- [3_FST](scripts/Stage_M2_NB_3_FST.Rmd)
-- [4_IBS_IBD_KINSHIP](scripts/Stage_M2_NB_4_IBS_IBD_KINSHIP.Rmd)
+- [1_ACP](Stage_M2_NB_1_ACP.md)
+- [2_CV_Admixture](Stage_M2_NB_2_CV_Admixture.md)
+- [3_FST](Stage_M2_NB_3_FST.md)
+- [4_IBS_IBD_KINSHIP](Stage_M2_NB_4_IBS_IBD_KINSHIP.md)
 
 
 # BeeMuSe
