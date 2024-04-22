@@ -1,3 +1,7 @@
+Script Rmarkdown associé :
+- [3_FST_Rmd](scripts/Stage_M2_NB_3_FST.Rmd)
+- [3_FST_html](scripts/Stage_M2_NB_3_FST.html)
+
 ## Chargement des packages R
 
 ```{r}
