@@ -10,6 +10,12 @@ Les scripts R pour réaliser certaines analyses et obtenir les figures sont acce
 
 
 # BeeMuSe
+
+```
+wc -l E756_BeeMuSe.map
+```
+Le jeu de données BeeMuSe correspond à 12000 SNPs pour 748 échantillons
+
 ## Conversion au format plink
 - convertnumchrmap.sh
 
@@ -54,21 +60,13 @@ while read -r line; do
 done < "$input_map" > "$output_map"
 ```
 
-#Chromosome     Marker ID       Genetic distance        Physical position
-17      AX-643870442    0.000   752
-17      AX-643891109    0.000   1454
-```
-module load bioinfo/PLINK/1.90b7
-plink --file E756_BeeMuSe_num_chr --make-bed --no-fid --no-parents --no-sex --no-pheno
-```
-```
-wc -l E756_BeeMuSe.map
-```
-12000 SNPs
-
 ## Conversion en fichiers .bim, .bed et .fam
+
+-makebedbeemuse.sh
 ```
+#!/bin/bash
 module load bioinfo/PLINK/1.90b7
+
 plink --file E756_BeeMuSe_num_chr --make-bed --no-parents --no-sex --no-pheno
 
 less -S +376 E756_BeeMuSe_num_chr.ped
