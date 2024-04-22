@@ -1,0 +1,132 @@
+## Chargement des packages R
+
+```{r}
+library(ggplot2)
+library(qqman)
+library(vioplot)
+```
+
+# Analyse de l'indice de différenciation génétique (FST) des SNPS
+
+## SeqApiPop - 629 échantillons - SNPsBeeMuSe filtered
+
+### No filter - No LD pruning - 10030 SNPs
+
+```{r}
+setwd("~/Documents/Stage_NB/data/SeqApiPop_629_SNPsBeeMuSe") 
+
+# Charger les données
+fst_data_10030 <- read.table("SeqApiPop_629_SNPsBeeMuSe_filtered_fst.fst", header=TRUE)
+
+fstsubset <- fst_data_10030[complete.cases(fst_data_10030),]
+SNP <- c(1:(nrow(fstsubset)))
+mydf <- data.frame(SNP, fstsubset)
+ 
+# Manhattan plot FST
+manhattan(mydf,chr="CHR",bp="POS",p="FST"
+,snp="SNP",logp=FALSE,ylab="Fst")
+
+# Créer un violin plot des valeurs de FST
+vioplot(fst_data_10030$FST, names="FST", col="#1f77b4",ylim=c(0, 1), horizontal=FALSE, main="Violin Plot FST - 10030 SNPs")
+
+# Filtrer les données pour inclure uniquement les positions du chromosome 11
+fst_data_10030_chr11 <- subset(fst_data_10030, CHR == "11")
+
+SNP <- seq_len(nrow(fst_data_10030_chr11))
+mydf_11 <- data.frame(SNP = SNP, fst_data_10030_chr11)
+manhattan(mydf_11, chr = "CHR", bp = "POS", p = "FST", snp = "SNP", logp = FALSE, ylab = "Fst")
+
+vioplot(fst_data_10030_chr11$FST, names="FST", col="#aec7e8", ylim=c(0, 1),horizontal=FALSE, main="Violin Plot FST - Chr 11 - 10030 SNPs")
+```
+
+### MAF \> 0.01 - LD pruning = 0.3 (fenêtre de 1749 SNPS et pas de 175 bp) - 3848 SNPs
+
+```{r}
+setwd("~/Documents/Stage_NB/data/SeqApiPop_629_SNPsBeeMuSe") 
+
+# Charger les données
+fst_data_3848 <- read.table("SeqApiPop_629_SNPsBeeMuSe_filtered_maf001_LD03_pruned_fst.fst", header=TRUE)
+
+fstsubset <- fst_data_3848[complete.cases(fst_data_3848),]
+SNP <- c(1:(nrow(fstsubset)))
+mydf <- data.frame(SNP, fstsubset)
+
+# Manhattan plot FST
+manhattan(mydf,chr="CHR",bp="POS",p="FST"
+,snp="SNP",logp=FALSE,ylab="Fst")
+
+vioplot(fst_data_3848$FST, names="FST", col="#d62728", ylim=c(0, 1),horizontal=FALSE, main="Violin Plot FST - 3848 SNPs")
+
+# Filtrer les données pour inclure uniquement les positions du chromosome 11
+fst_data_3848_chr11 <- subset(fst_data_3848, CHR == "11")
+
+SNP <- seq_len(nrow(fst_data_3848_chr11))
+mydf_11 <- data.frame(SNP = SNP, fst_data_3848_chr11)
+manhattan(mydf_11, chr = "CHR", bp = "POS", p = "FST", snp = "SNP", logp = FALSE, ylab = "Fst")
+
+vioplot(fst_data_3848_chr11$FST, names="FST", col="#ff9896",ylim=c(0, 1), horizontal=FALSE, main="Violin Plot FST - Chr 11 - 3848 SNPs")
+```
+
+### MAF \> 0.01 - LD pruning = 0.1 (fenêtre de 50 SNPS et pas de 10 bp) - 1055 SNPs
+
+```{r}
+setwd("~/Documents/Stage_NB/data/SeqApiPop_629_SNPsBeeMuSe") 
+
+# Charger les données
+fst_data_1055 <- read.table("SeqApiPop_629_SNPsBeeMuSe_filtered_maf001_LD03_default_pruned_fst.fst", header=TRUE)
+
+fstsubset <- fst_data_1055[complete.cases(fst_data_1055),]
+SNP <- c(1:(nrow(fstsubset)))
+mydf <- data.frame(SNP, fstsubset)
+ 
+# Manhattan plot FST
+manhattan(mydf,chr="CHR",bp="POS",p="FST"
+,snp="SNP",logp=FALSE,ylab="Fst")
+
+vioplot(fst_data_1055$FST, names="FST", col="#FFA500", ylim=c(0, 1),horizontal=FALSE, main="Violin Plot FST - 1055 SNPs")
+
+# Filtrer les données pour inclure uniquement les positions du chromosome 11
+fst_data_1055_chr11 <- subset(fst_data_1055, CHR == "11")
+
+SNP <- seq_len(nrow(fst_data_1055_chr11))
+mydf_11 <- data.frame(SNP = SNP, fst_data_1055_chr11)
+manhattan(mydf_11, chr = "CHR", bp = "POS", p = "FST", snp = "SNP", logp = FALSE, ylab = "Fst")
+
+vioplot(fst_data_1055_chr11$FST, names="FST", col="#ffcc7a",ylim=c(0, 1), horizontal=FALSE, main="Violin Plot FST - Chr 11 - 1055 SNPs")
+```
+
+```{r}
+# Création d'un facteur pour distinguer les différentes données
+fst_data_10030$Dataset <- "fst_data_10030"
+fst_data_10030_chr11$Dataset <- "fst_data_10030_chr11"
+fst_data_3848$Dataset <- "fst_data_3848"
+fst_data_3848_chr11$Dataset <- "fst_data_3848_chr11"
+fst_data_1055$Dataset <- "fst_data_1055"
+fst_data_1055_chr11$Dataset <- "fst_data_1055_chr11"
+
+fst_dataset <- rbind(fst_data_10030, fst_data_10030_chr11, fst_data_3848, fst_data_3848_chr11, fst_data_1055, fst_data_1055_chr11)
+
+group_order <- c("fst_data_10030", "fst_data_10030_chr11", 
+                 "fst_data_3848", "fst_data_3848_chr11", 
+                 "fst_data_1055", "fst_data_1055_chr11")
+fst_dataset$Dataset <- factor(fst_dataset$Dataset, levels = group_order)
+
+ggplot(fst_dataset, aes(x = Dataset, y = FST, fill = Dataset)) +
+  geom_violin(trim = FALSE) +
+  geom_boxplot(width = 0.1) +
+  scale_fill_manual(values = c("fst_data_10030" = "#1f77b4", 
+                               "fst_data_10030_chr11" = "#aec7e8", 
+                               "fst_data_3848" = "#d62728",
+                               "fst_data_3848_chr11" = "#ff9896",
+                               "fst_data_1055" = "#FFA500",
+                               "fst_data_1055_chr11" = "#ffcc7a")) +
+  labs(title = "Violin Plot of FST values",
+       x = "Group",
+       y = "FST") +
+  theme_minimal() +
+  ylim(0, 1) 
+
+mean_values <- aggregate(FST ~ Dataset, data = fst_dataset, FUN = mean)
+
+print(mean_values)
+```
