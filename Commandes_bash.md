@@ -387,7 +387,7 @@ Soit **10030** SNPs filtrés en commun entre les 7023976 SNPs du jeu de données
 #! /bin/bash
 module load bioinfo/PLINK/1.90b7
 
-NAME=_
+NAME=subset_RefPop_samples_filtered
 plink --bfile ${NAME} \
   --maf 0.01 \
   --out ${NAME}_maf001 \
@@ -403,8 +403,8 @@ plink --bfile ${NAME} \
 module load bioinfo/PLINK/1.90b7
 module load bioinfo/PLINK/2.00a4
 
-NAME1=subset_RefPop_samples_maf001
-NAME2=subset_RefPop_samples_maf001_LD_default
+NAME1=subset_RefPop_samples_filtered_maf001
+NAME2=subset_RefPop_samples_filtered_maf001_LD_default
 
 plink --bfile ${NAME1} \
   --out ${NAME2} \
@@ -415,6 +415,6 @@ plink --bfile ${NAME1} \
   --extract ${NAME2}.prune.in \
   --make-bed
 
-plink2 --bfile subset_RefPop_samples_maf001_LD_default_pruned --make-rel square --nonfounders --out subset_RefPop_samples_maf001_LD_default_acp --allow-extra-chr
-plink2 --bfile subset_RefPop_samples_maf001_LD_default_pruned --pca --nonfounders --out subset_RefPop_samples_ref_maf001_LD_default_acp --allow-extra-chr
+plink2 --bfile ${NAME2}_pruned --make-rel square --nonfounders --out ${NAME2}_acp --allow-extra-chr
+plink2 --bfile ${NAME2}_pruned --pca --nonfounders --out ${NAME2}_acp --allow-extra-chr
 ```
