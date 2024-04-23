@@ -1235,10 +1235,10 @@ ls ../merged_data_1055_K3_95_supervised/* | grep LD | awk 'BEGIN{FS="/";OFS="\t"
 ```
 
 ```
-pong -m pong_filemap_merged_data_K3_95_supervised -n popOrder_merged_data.list -i ind2pop_merged_data.txt -l colors_merged_data -s 0.98
+pong -m pong_filemap_merged_data_K3_95_supervised -n popOrder_merged_data.list -i ind2pop_merged_data_561.txt -l colors_merged_data -s 0.98
 ```
 ```
-pong -m pong_filemap_merged_data_K3_95_supervised -n popOrder_merged_data_ID_2a.list -i ind2pop_merged_data_ID_2a.txt -l colors_merged_data -s 0.98
+pong -m pong_filemap_merged_data_K3_95_supervised -n popOrder_merged_data_ID_2a.list -i ind2pop_merged_data_ID_2a_561.txt -l colors_merged_data -s 0.98
 ```
 
 ```
