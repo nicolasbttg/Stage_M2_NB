@@ -115,7 +115,7 @@ On obtient trois fichiers au format plink :
 > BeeMuSe.fam
 
 
-## ACP
+## Analyse en Composantes Principales (ACP)
 
 - acpBeeMuSe.bash
 ```
