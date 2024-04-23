@@ -441,7 +441,7 @@ lien E756_BeeMuSe_num_chr_2col.map et list_markers_ID_to_keep.csv
 awk -F';' 'NR>1 {print $1}' list_markers_ID_to_keep.csv > list_markers_ID_to_keep.txt
 ```
 ```
-plink --file E756_BeeMuSe_num_chr_2col --make-bed --no-parents --no-sex --no-pheno -out BeeMuse
+plink --file E756_BeeMuSe_num_chr_2col --make-bed --no-parents --no-sex --no-pheno -out BeeMuSe
 ```
 
 - extractlistmarkersID.bash
@@ -451,7 +451,7 @@ plink --file E756_BeeMuSe_num_chr_2col --make-bed --no-parents --no-sex --no-phe
 module load bioinfo/PLINK/1.90b7
 
 # Supprimer les marqueurs indésirables du fichier BED
-plink --bfile BeeMuse --extract list_markers_ID_to_keep.txt --make-bed --out BeeMuse_filtered
+plink --bfile BeeMuSe --extract list_markers_ID_to_keep.txt --make-bed --out BeeMuSe_filtered
 ```
 
 Effectuer l'ACP sur les données filtrées
@@ -658,32 +658,40 @@ pong -m pong_filemap_561_maf001_LD03_K2K9 -n popOrder_561_Label.list -i ind2pop_
 
 # Merged Data - Fusion des deux jeux de données
 ```
- head BeeMuse_filtered.bim
+ head BeeMuSe_filtered.bim
+```
 ```
 1	AX-643871392	0	14449	A	G
 1	AX-643872730	0	31950	C	T
 1	AX-643872782	0	36727	T	C
+```
 
 ```
  head subset_RefPop_samples.bim
 ```
+```
 NC_037638.1	.	0	5671	C	T
 NC_037638.1	.	0	5698	C	T
 NC_037638.1	.	0	6621	G	A
+```
 
 ```
-head BeeMuse_filtered.fam
+head BeeMuSe_filtered.fam
+```
 ```
 Beemuse_Pool 100_C2.CEL 0 0 0 -9
 Beemuse_Pool 102_G2.CEL 0 0 0 -9
 Beemuse_Pool 103_I2.CEL 0 0 0 -9
+```
 
 ```
 head subset_RefPop_samples.fam
 ```
+```
 0	Ab-PacBio	0	0	0	-9
 0	BER10	0	0	0	-9
 0	BER11	0	0	0	-9
+```
 
 - subsetforPlink.sh
 ```
@@ -725,21 +733,25 @@ grep -c '^NC_' E756_BeeMuSe.vcf
 ```
 head E756_BeeMuSe.vcf
 ```
+```
 #CHROM  POS     ID      REF     ALT     QUAL    FILTER  INFO    FORMAT  Beemuse_Pool 100_C2.CEL Beemuse_Pool 102_G2.CEL Beemuse_Pool 103_I2.CEL Beemuse_Pool 104_K2.CEL Beemuse_Pool 105_M2.CEL Beemuse_Po>
 17      752     AX-643870442    N       .       .       FAIL    CR=98;ConversionType=Other      GT      ./.     ./.     ./.     ./.     ./.     ./.     ./.     ./.     ./.     ./.     ./.     ./.     ./>
 17      1454    AX-643891109    N       .       .       FAIL    CR=100;ConversionType=Other     GT      ./.     ./.     ./.     ./.     ./.     ./.     ./.     ./.     ./.     ./.     ./.     ./.     ./>
+```
 
 ```
 head subset_RefPop_samples_ref.vcf
 ```
+```
 #CHROM  POS     ID      REF     ALT     QUAL    FILTER  INFO    FORMAT  Ab-PacBio       BER10   BER11   BER12   BER13   BER14   BER15   BER16   BER17   BER18   BER19   BER2    BER21   BER4    BER5    BE>
 1       5671    .       T       C       332.46  .       AC=0;AF=0.001196;AN=576;BaseQRankSum=-0.969;DP=13376;ExcessHet=0.013;FS=4.15;InbreedingCoeff=0.0188;MLEAC=1;MLEAF=0.0005981;MQ=52.1;MQRankSum=1.51>
 1       5698    .       T       C       3633.8  .       AC=0;AF=0.004779;AN=576;BaseQRankSum=0.544;DP=12793;ExcessHet=0.0011;FS=0;InbreedingCoeff=0.0802;MLEAC=9;MLEAF=0.005376;MQ=50.23;MQRankSum=3.5;QD=>
+```
 
 On a ici deux formats différents pour les fichiers VCF de SeqApiPop et BeeMuSe, dont un issu de génotypage par séquençage et l'autre de génotypage par puce de 12000 SNPs.
 On va créer les fichiers fusionnés .bim, .bed, .fam en ayant attribué les mêmes identifiants de marqueurs de BeeMuSe à ceux en commun avec SeqApiPop.
 
-## Extraction des SNPs de bonne qualité à garder - list_markers_ID_to_keep.csv (SeqApiPop - BeeMuse)
+## Extraction des SNPs de bonne qualité à garder - list_markers_ID_to_keep.csv (SeqApiPop - BeeMuSe)
 
 - script Python dico_CHR_POS_ID.py
 ``` 
@@ -810,26 +822,18 @@ for i, (cle, valeur) in enumerate(dictionnaire_resultats.items()):
 ```
 
 On obtient : 
-
+```
 NC_001566.1_752: .
-
 NC_001566.1_1454: .
-
 NC_001566.1_3721: .
-
 NC_001566.1_3816: .
-
 NC_001566.1_5219: AX-643870441
-
 NC_001566.1_10111: AX-643891057
-
 NC_001566.1_10902: .
-
 NC_037638.1_14449: .
-
 NC_037638.1_31950: .
-
 NC_037638.1_36727: .
+```
 
 - Combien y-a-t-il de marqueurs en commun ? 
 ```
@@ -883,7 +887,7 @@ grep 'AX-' list_markers_ID_to_keep.txt | wc -l
 ```
 **10256** SNPs
 ```
-grep 'AX-' BeeMuse_filtered.bim | wc -l
+grep 'AX-' BeeMuSe_filtered.bim | wc -l
 ```
 12000 => **10256** SNPs
 ```
@@ -993,7 +997,7 @@ Extraction des  1055 marqueurs du fichier VCF BeeMuSe
 #extractlistmarkersIDbeemuse.bash
 module load bioinfo/PLINK/1.90b7
 
-plink --bfile BeeMuse_filtered --extract marker_ids_filtered_maf001_LD_default.txt --make-bed --out BeeMuSe_filtered_maf001_LD_default --allow-extra-chr
+plink --bfile BeeMuSe_filtered --extract marker_ids_filtered_maf001_LD_default.txt --make-bed --out BeeMuSe_filtered_maf001_LD_default --allow-extra-chr
 ```
 ```
 less BeeMuSe_filtered_maf001_LD_default.bim | wc -
@@ -1153,7 +1157,7 @@ Herault_Breeder HeraultBreeder
 Sarthe_Breeder  Sarthe
 Vaucluse_Breeder        VaucluseBreeder
 Unknown UnknownSeqApiPop
-Beemuse UnknownBeemuseBeemuse UnknownBeemuse
+Beemuse UnknownBeemuse
 BAH_20-19       BAH_20-19
 BBS_6-19        BBS_6-19
 BER_11-19       BER_11-19
@@ -1289,7 +1293,7 @@ plink --bfile SeqApiPop_629_SNPsBeeMuSe_filtered_maf001_LD_default_pruned --fst 
 #plinkgenomekeep.bash
 module load bioinfo/PLINK/1.90b7
 
-plink --bfile BeeMuse --genome --keep liste_individus_beemuse_ibd.txt --out BeeMuse_genome
+plink --bfile BeeMuSe --genome --keep liste_individus_beemuse_ibd.txt --out BeeMuSe_genome
 ```
 
 - plinkgenome.bash
@@ -1298,7 +1302,7 @@ plink --bfile BeeMuse --genome --keep liste_individus_beemuse_ibd.txt --out BeeM
 #plinkgenome.bash
 module load bioinfo/PLINK/1.90b7
 
-plink --bfile BeeMuse --genome --out BeeMuse_genome
+plink --bfile BeeMuSe --genome --out BeeMuSe_genome
 ```
 - PI_HAT  :  P(IBD=2)+0.5*P(IBD=1) (proportion IBD)
 - DST    :   IBS distance (IBS2 + 0.5*IBS1) / (N SNP pairs)
@@ -1308,36 +1312,36 @@ plink --bfile BeeMuse --genome --out BeeMuse_genome
 #! /bin/bash
 #plinkgenomeID2a.bash
 
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' bbs_6_19.txt BeeMuse_genome_full.genome > BBS_6-19.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' bah_20_19.txt BeeMuse_genome_full.genome > BAH_20-19.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' ber_11_19.txt BeeMuse_genome_full.genome > BER_11-19.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' bh_44.txt BeeMuse_genome_full.genome > BH_44.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' bh_7-19.txt BeeMuse_genome_full.genome > BH_7-19.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' bha_2-20.txt BeeMuse_genome_full.genome > BHA_2-20.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' bls_53-19.txt BeeMuse_genome_full.genome > BLS_53-19.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' er_13-19.txt BeeMuse_genome_full.genome > ER_13-19.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' kbj_1-19.txt BeeMuse_genome_full.genome > KBJ_1-19.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' kbru_6-20.txt BeeMuse_genome_full.genome > KBru_6-20.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' kloc_37-19.txt BeeMuse_genome_full.genome > KLoc_37-19.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' klsu_14-19.txt BeeMuse_genome_full.genome > KLSU_14-19.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' mm_31-20.txt BeeMuse_genome_full.genome > MM_31-20.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' mm_37-20.txt BeeMuse_genome_full.genome > MM_37-20.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' mp_10-20.txt BeeMuse_genome_full.genome > MP_10-20.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persobc_2021.txt BeeMuse_genome_full.genome > PersoBC_2021.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persojll_2021.txt BeeMuse_genome_full.genome > PersoJLL_2021.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persojll_2022.txt BeeMuse_genome_full.genome > PersoJLL_2022.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persold_2021.txt BeeMuse_genome_full.genome > PersoLD_2021.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persold_2022.txt BeeMuse_genome_full.genome > PersoLD_2022.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persoub_2021.txt BeeMuse_genome_full.genome > PersoUB_2021.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persoub_2022.txt BeeMuse_genome_full.genome > PersoUB_2022.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' s_gz_2-19.txt BeeMuse_genome_full.genome > S_GZ_2-19.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' sbj_3-19.txt BeeMuse_genome_full.genome > SBJ_3-19.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' sj_16-20.txt BeeMuse_genome_full.genome > SJ_16-20.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' sj_24-20.txt BeeMuse_genome_full.genome > SJ_24-20.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' sj_30-20.txt BeeMuse_genome_full.genome > SJ_30-20.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' tl_13-20.txt BeeMuse_genome_full.genome > TL_13-20.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' tl_19-20.txt BeeMuse_genome_full.genome > TL_19-20.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' unknown.txt BeeMuse_genome_full.genome > Unknown.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' bbs_6_19.txt BeeMuSe_genome_full.genome > BBS_6-19.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' bah_20_19.txt BeeMuSe_genome_full.genome > BAH_20-19.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' ber_11_19.txt BeeMuSe_genome_full.genome > BER_11-19.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' bh_44.txt BeeMuSe_genome_full.genome > BH_44.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' bh_7-19.txt BeeMuSe_genome_full.genome > BH_7-19.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' bha_2-20.txt BeeMuSe_genome_full.genome > BHA_2-20.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' bls_53-19.txt BeeMuSe_genome_full.genome > BLS_53-19.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' er_13-19.txt BeeMuSe_genome_full.genome > ER_13-19.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' kbj_1-19.txt BeeMuSe_genome_full.genome > KBJ_1-19.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' kbru_6-20.txt BeeMuSe_genome_full.genome > KBru_6-20.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' kloc_37-19.txt BeeMuSe_genome_full.genome > KLoc_37-19.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' klsu_14-19.txt BeeMuSe_genome_full.genome > KLSU_14-19.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' mm_31-20.txt BeeMuSe_genome_full.genome > MM_31-20.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' mm_37-20.txt BeeMuSe_genome_full.genome > MM_37-20.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' mp_10-20.txt BeeMuSe_genome_full.genome > MP_10-20.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persobc_2021.txt BeeMuSe_genome_full.genome > PersoBC_2021.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persojll_2021.txt BeeMuSe_genome_full.genome > PersoJLL_2021.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persojll_2022.txt BeeMuSe_genome_full.genome > PersoJLL_2022.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persold_2021.txt BeeMuSe_genome_full.genome > PersoLD_2021.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persold_2022.txt BeeMuSe_genome_full.genome > PersoLD_2022.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persoub_2021.txt BeeMuSe_genome_full.genome > PersoUB_2021.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persoub_2022.txt BeeMuSe_genome_full.genome > PersoUB_2022.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' s_gz_2-19.txt BeeMuSe_genome_full.genome > S_GZ_2-19.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' sbj_3-19.txt BeeMuSe_genome_full.genome > SBJ_3-19.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' sj_16-20.txt BeeMuSe_genome_full.genome > SJ_16-20.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' sj_24-20.txt BeeMuSe_genome_full.genome > SJ_24-20.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' sj_30-20.txt BeeMuSe_genome_full.genome > SJ_30-20.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' tl_13-20.txt BeeMuSe_genome_full.genome > TL_13-20.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' tl_19-20.txt BeeMuSe_genome_full.genome > TL_19-20.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' unknown.txt BeeMuSe_genome_full.genome > Unknown.genome
 ```
 
 - plink2genome.bash
@@ -1346,7 +1350,7 @@ awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" 
 #plink2genome.bash
 module load bioinfo/PLINK/2.00a4
 
-plink2 --bfile BeeMuse --make-king-table  --out BeeMuse_plink2_genome
+plink2 --bfile BeeMuSe --make-king-table  --out BeeMuSe_plink2_genome
 ```
 - IBS0 : Proportion de SNPs partagés par descendance entre les deux individus
 - KINSHIP : Coefficient de parenté KING entre les deux individus
@@ -1357,36 +1361,36 @@ plink2 --bfile BeeMuse --make-king-table  --out BeeMuse_plink2_genome
 #! /bin/bash
 #plink2genomeID2a.bash
 
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' bbs_6_19.txt BeeMuse_plink2_genome.kin0 > BBS_6-19_plink2.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' bah_20_19.txt BeeMuse_plink2_genome.kin0 > BAH_20-19_plink2.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' ber_11_19.txt BeeMuse_plink2_genome.kin0 > BER_11-19_plink2.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' bh_44.txt BeeMuse_plink2_genome.kin0 > BH_44_plink2.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' bh_7-19.txt BeeMuse_plink2_genome.kin0 > BH_7-19_plink2.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' bha_2-20.txt BeeMuse_plink2_genome.kin0 > BHA_2-20_plink2.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' bls_53-19.txt BeeMuse_plink2_genome.kin0 > BLS_53-19_plink2.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' er_13-19.txt BeeMuse_plink2_genome.kin0 > ER_13-19_plink2.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' kbj_1-19.txt BeeMuse_plink2_genome.kin0 > KBJ_1-19_plink2.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' kbru_6-20.txt BeeMuse_plink2_genome.kin0 > KBru_6-20_plink2.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' kloc_37-19.txt BeeMuse_plink2_genome.kin0 > KLoc_37-19_plink2.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' klsu_14-19.txt BeeMuse_plink2_genome.kin0 > KLSU_14-19_plink2.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' mm_31-20.txt BeeMuse_plink2_genome.kin0 > MM_31-20_plink2.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' mm_37-20.txt BeeMuse_plink2_genome.kin0 > MM_37-20_plink2.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' mp_10-20.txt BeeMuse_plink2_genome.kin0 > MP_10-20_plink2.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persobc_2021.txt BeeMuse_plink2_genome.kin0 > PersoBC_2021_plink2.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persojll_2021.txt BeeMuse_plink2_genome.kin0 > PersoJLL_2021_plink2.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persojll_2022.txt BeeMuse_plink2_genome.kin0 > PersoJLL_2022_plink2.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persold_2021.txt BeeMuse_plink2_genome.kin0 > PersoLD_2021_plink2.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persold_2022.txt BeeMuse_plink2_genome.kin0 > PersoLD_2022_plink2.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persoub_2021.txt BeeMuse_plink2_genome.kin0 > PersoUB_2021_plink2.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persoub_2022.txt BeeMuse_plink2_genome.kin0 > PersoUB_2022_plink2.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' s_gz_2-19.txt BeeMuse_plink2_genome.kin0 > S_GZ_2-19_plink2.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' sbj_3-19.txt BeeMuse_plink2_genome.kin0 > SBJ_3-19_plink2.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' sj_16-20.txt BeeMuse_plink2_genome.kin0 > SJ_16-20_plink2.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' sj_24-20.txt BeeMuse_plink2_genome.kin0 > SJ_24-20_plink2.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' sj_30-20.txt BeeMuse_plink2_genome.kin0 > SJ_30-20_plink2.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' tl_13-20.txt BeeMuse_plink2_genome.kin0 > TL_13-20_plink2.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' tl_19-20.txt BeeMuse_plink2_genome.kin0 > TL_19-20_plink2.genome
-awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' unknown.txt BeeMuse_plink2_genome.kin0 > Unknown_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' bbs_6_19.txt BeeMuSe_plink2_genome.kin0 > BBS_6-19_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' bah_20_19.txt BeeMuSe_plink2_genome.kin0 > BAH_20-19_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' ber_11_19.txt BeeMuSe_plink2_genome.kin0 > BER_11-19_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' bh_44.txt BeeMuSe_plink2_genome.kin0 > BH_44_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' bh_7-19.txt BeeMuSe_plink2_genome.kin0 > BH_7-19_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' bha_2-20.txt BeeMuSe_plink2_genome.kin0 > BHA_2-20_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' bls_53-19.txt BeeMuSe_plink2_genome.kin0 > BLS_53-19_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' er_13-19.txt BeeMuSe_plink2_genome.kin0 > ER_13-19_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' kbj_1-19.txt BeeMuSe_plink2_genome.kin0 > KBJ_1-19_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' kbru_6-20.txt BeeMuSe_plink2_genome.kin0 > KBru_6-20_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' kloc_37-19.txt BeeMuSe_plink2_genome.kin0 > KLoc_37-19_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' klsu_14-19.txt BeeMuSe_plink2_genome.kin0 > KLSU_14-19_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' mm_31-20.txt BeeMuSe_plink2_genome.kin0 > MM_31-20_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' mm_37-20.txt BeeMuSe_plink2_genome.kin0 > MM_37-20_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' mp_10-20.txt BeeMuSe_plink2_genome.kin0 > MP_10-20_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persobc_2021.txt BeeMuSe_plink2_genome.kin0 > PersoBC_2021_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persojll_2021.txt BeeMuSe_plink2_genome.kin0 > PersoJLL_2021_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persojll_2022.txt BeeMuSe_plink2_genome.kin0 > PersoJLL_2022_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persold_2021.txt BeeMuSe_plink2_genome.kin0 > PersoLD_2021_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persold_2022.txt BeeMuSe_plink2_genome.kin0 > PersoLD_2022_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persoub_2021.txt BeeMuSe_plink2_genome.kin0 > PersoUB_2021_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persoub_2022.txt BeeMuSe_plink2_genome.kin0 > PersoUB_2022_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' s_gz_2-19.txt BeeMuSe_plink2_genome.kin0 > S_GZ_2-19_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' sbj_3-19.txt BeeMuSe_plink2_genome.kin0 > SBJ_3-19_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' sj_16-20.txt BeeMuSe_plink2_genome.kin0 > SJ_16-20_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' sj_24-20.txt BeeMuSe_plink2_genome.kin0 > SJ_24-20_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' sj_30-20.txt BeeMuSe_plink2_genome.kin0 > SJ_30-20_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' tl_13-20.txt BeeMuSe_plink2_genome.kin0 > TL_13-20_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' tl_19-20.txt BeeMuSe_plink2_genome.kin0 > TL_19-20_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' unknown.txt BeeMuSe_plink2_genome.kin0 > Unknown_plink2.genome
 ```
 
 # Extraire les valeurs de CV - matrices Q Admixture
