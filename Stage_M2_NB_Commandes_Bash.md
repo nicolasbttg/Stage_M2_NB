@@ -749,7 +749,7 @@ head subset_RefPop_samples_ref.vcf
 ```
 
 On a ici deux formats différents pour les fichiers VCF de SeqApiPop et BeeMuSe, dont un issu de génotypage par séquençage et l'autre de génotypage par puce de 12000 SNPs.
-On va créer les fichiers fusionnés .bim, .bed, .fam en ayant attribué les mêmes identifiants de marqueurs de BeeMuSe à ceux en commun avec SeqApiPop.
+On va créer les fichiers fusionnés .bim, .bed, .fam en ayant attribué les mêmes identifiants des marqueurs de BeeMuSe en commun avec les marqueurs du jeu de données SeqApiPop.
 
 ## Extraction des SNPs de bonne qualité à garder - list_markers_ID_to_keep.csv (SeqApiPop - BeeMuSe)
 
