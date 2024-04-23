@@ -1434,7 +1434,7 @@ ggplot(data = eigenvec_refpop_seq_api_labels, aes(x = V5, y = V6, color = Label)
   guides(color = guide_legend(override.aes = list(size = 3.5), ncol = 2))
 ```
 
-### 629 échantillons - SNPsBeeMuSe filtered
+### 629 échantillons - SNPsBeeMuSe filtered (10256 high quality BeeMuSe SNPs)
 
 #### No LD pruning - 10030 SNPS
 
