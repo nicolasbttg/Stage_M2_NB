@@ -11,17 +11,52 @@ Les scripts R pour réaliser certaines analyses et obtenir les figures sont acce
 
 # BeeMuSe
 
+On dispose du jeu de données du projet BeeMuSe sous forme de fichier VCF et plink au format .map et .ped.
+
+> E756_BeeMuSe.vcf
+
+> E756_BeeMuSe.map
+
+> E756_BeeMuSe.ped
+
 ```
 wc -l E756_BeeMuSe.map
 ```
-Le jeu de données BeeMuSe correspond à 12000 SNPs pour 748 échantillons d'abeilles domestiques
+
+Le jeu de données BeeMuSe correspond à 12000 SNPs pour 748 lignées sélectionnées d'abeilles domestiques.
 
 ## Conversion au format plink
 
-- convertplinkbeemuse.sh
+Soit le fichier de correspondance pour l'identifiant des chromosomes du génomes des abeilles domestiques : 
+
+- HAv3_1_Chromosomes.list
+
+```
+NC_037638.1	1
+NC_037639.1	2
+NC_037640.1	3
+NC_037641.1	4
+NC_037642.1	5
+NC_037643.1	6
+NC_037644.1	7
+NC_037645.1	8
+NC_037646.1	9
+NC_037647.1	10
+NC_037648.1	11
+NC_037649.1	12
+NC_037650.1	13
+NC_037651.1	14
+NC_037652.1	15
+NC_037653.1	16
+NC_001566.1	17
+```
+
+- convertplinkbeemuse.bash
 
 ```
 #!/bin/bash
+#convertplinkbeemuse.bash
+
 # Fichier de référence pour faire correspondre les ID de chromosome aux numéros
 chromosome_list="HAv3_1_Chromosomes.list"
 
@@ -69,8 +104,16 @@ done < "$input_map" > "$output_map"
 module load bioinfo/PLINK/1.90b7
 
 sed 's/-/ /g' E756_BeeMuSe_num_chr.ped > E756_BeeMuSe_num_chr_2.ped
-plink --file E756_BeeMuSe_num_chr_2 --make-bed --no-parents --no-sex --no-pheno -out BeeMuse
+plink --file E756_BeeMuSe_num_chr_2 --make-bed --no-parents --no-sex --no-pheno -out BeeMuSe
 ```
+On obtient trois fichiers au format plink :
+
+> BeeMuSe.bim
+
+> BeeMuSe.bed
+
+> BeeMuSe.fam
+
 
 ## ACP
 
@@ -79,8 +122,8 @@ plink --file E756_BeeMuSe_num_chr_2 --make-bed --no-parents --no-sex --no-pheno 
 #!/bin/bash
 module load bioinfo/PLINK/2.00a4
 
-plink2 --bfile BeeMuse --make-rel square  --out BeeMuse_acp --allow-extra-chr
-plink2 --bfile BeeMuse --pca --out BeeMuse_acp --allow-extra-chr
+plink2 --bfile BeeMuSe --make-rel square  --out BeeMuSe_acp --allow-extra-chr
+plink2 --bfile BeeMuSe --pca --out BeeMuSe_acp --allow-extra-chr
 
 echo "done"
 ```
@@ -88,7 +131,7 @@ echo "done"
 # SeqApiPop
 ## Obtention des données
 
-- Récupérer les fichiers de référence SeqApiPop (Wragg et al., 2021), avec le fichier VCF de 7 023 689 SNPs des 870 échantillons d'abeilles domestiques et la liste des 629 échantillons de référence pour les analyses de structure des populations à extraire depuis [zenodo](https://zenodo.org/records/5592452)
+- On récupère les fichiers de référence SeqApiPop (Wragg et al., 2021), avec le fichier VCF de 7 023 689 SNPs des 870 échantillons d'abeilles domestiques et la liste des 629 échantillons de référence pour les analyses de structure des populations à extraire depuis [zenodo](https://zenodo.org/records/5592452)
 > Diversity_Study_629_Samples.txt
 
 > MetaGenotypesCalled870_raw_snps_allfilter.vcf.gz
@@ -128,6 +171,8 @@ bash substForPlinkWrite.bash > substForPlink.bash
 grep -v '^#' MetaGenotypesCalled870_raw_snps_allfilter_plink.vcf | wc -l
 ```
 => **7 023 976** SNPs
+
+## Sélection des 629 échantillons de référence
 
 - select629.bash
 ```
@@ -170,6 +215,8 @@ Une liste de 629 échantillons est sélectionnée pour les analyses de structure
 - Les échantillons d'une autre étude
 - Les 15 échantillons avec > 0,1 de données manquantes.
 
+## Filtre LD et ACP
+
 - select629_LD.bash
 ```
 #! /bin/bash
@@ -197,6 +244,10 @@ plink --bfile ${NAME2}_pruned \
   --out ${NAME2}_acp \
   --make-rel square
 ```
+
+## Admixture
+
+On lance 30 exécutions d'Admixture avec un script qui crée un répertoire par exécution :
 
 - launchAdmixtureRunsWriteScriptsMAF001.bash
 ```
@@ -229,6 +280,7 @@ echo done >> SeqApiPop_629_MAF001_${LD}rep${i}/admixtureAnalysis.sh
 
 done
 ```
+On récupère les erreurs de CV d'Admixture :
 
 - obtainCVerrorAllSeqApiPop.bash
 ```
@@ -246,6 +298,14 @@ grep CV ${i}/*log* | \
 	awk 'BEGIN{OFS="\t"}{print $1,$2,$4,$5}'
 done
 ```
+Ou directement pour chaque exécution d'Admixture / matrice Q :
+
+```
+grep "CV" *log* | awk '{print $3,$4}' | sed -e 's/(//;s/)//;s/://;s/K=//'  > SeqApiPop_629_maf001_LD03_1.cv.error
+
+```
+
+On transfère les fichiers de matrices Q dans un répertoire
 
 - remaneQmatrixes.bash
 ```
@@ -272,12 +332,10 @@ do
 done
 ```
 
-Obtenir les erreurs de CV
-```
-grep "CV" *log* | awk '{print $3,$4}' | sed -e 's/(//;s/)//;s/://;s/K=//'  > SeqApiPop_629_maf001_LD03_0.cv.error
+### Visualisation avec PONG
 
-```
-Créer le fichier pong avec les matrices Q Admixture
+On créé le fichier PONG avec les chemins vers les matrices Q de l'analyse d'Admixture.
+
 ```
 ls  ../Qfiles/* | \
 	grep LD03 | \
@@ -286,16 +344,14 @@ ls  ../Qfiles/* | \
 	awk 'BEGIN{OFS="\t"}{print $1,$2,$3}' > pong_filemap_629_maf001_LD03_K2K12
 ```
 
-### PONG
+On crée les fichiers de liste des noms de tous les échantillons et de la correspondance avec leur population d'appartenance (Label) dans l'ordre de leur apparition lors de la visualisation sur PONG.
 
 ```
 awk '{print $1}' SeqApiPop_629_maf001_LD03_pruned.fam > ind2pop_629.list
 
 awk -F',' 'NR==FNR{a[$1]=$5; next} {print a[$1]}' SeqApiPop_labels.csv ind2pop_629.list > ind2pop_629_Label.list
-awk -F',' 'NR==FNR{a[$1]=$6; next} {print a[$1]}' SeqApiPop_labels.csv ind2pop_629.list > ind2pop_629_GeographicOrigin.list
 
 sed -i 's/ /_/g' ind2pop_629_Label.list
-sed -i 's/ /_/g' ind2pop_629_GeographicOrigin.list
 ```
 
 - popOrder_629_Label.list
@@ -334,7 +390,7 @@ Vaucluse_Breeder VaucluseBreeder
 Unknown Unknown
 ```
 
-Création du fichier des couleurs pour la visualisation Admixture
+Création du fichier des couleurs des fonds génétiques pour la visualisation Admixture.
 
 - colors
 ```
@@ -351,10 +407,12 @@ black
 #D09CFE
 #9CF4FE
 ```
+
 On lance PONG pour K2 à K12 :
 ```
 pong -m pong_filemap_629_maf001_LD03_K2K12 -n popOrder_629_Label.list -i ind2pop_629_Label.list -l colors -s 0.98
 ```
+
 Pour K2 à K9 :
 ```
 pong -m pong_filemap_629_maf001_LD03_K2K9 -n popOrder_629_Label.list -i ind2pop_629_Label.list -l colors -s 0.98
@@ -797,7 +855,29 @@ module load bioinfo/PLINK/1.90b7
 
 # Supprimer les marqueurs indésirables du fichier BED
 plink --bfile subset_RefPop_samples_ref_2 --extract list_markers_ID_to_keep.txt --make-bed --out subset_RefPop_samples_filtered --allow-extra-chr
+plink --bfile subset_RefPop_samples_ref_2 --extract list_markers_ID_to_keep.txt --make-bed --out BeeMuse_filtered --allow-extra-chr
+
 ```
+
+```
+less list_markers_ID_to_keep.txt
+```
+
+```
+...
+AX-643870445
+AX-643870447
+AX-643870456
+AX-643870457
+AX-643870459
+AX-643870461
+AX-643870469
+AX-643870471
+AX-643870474
+AX-643870475
+...
+```
+
 ```
 grep 'AX-' list_markers_ID_to_keep.txt | wc -l
 ```
