@@ -63,7 +63,7 @@ done < "$input_map" > "$output_map"
 
 ## Conversion en fichiers .bim, .bed et .fam
 
-- makebedbeemuse.sh
+- makebedbeemuse.bash
 ```
 #!/bin/bash
 module load bioinfo/PLINK/1.90b7
@@ -74,16 +74,20 @@ plink --file E756_BeeMuSe_num_chr_2 --make-bed --no-parents --no-sex --no-pheno 
 
 ## ACP
 
-- acpbeemuse.sh
+- acpBeeMuSe.bash
 ```
 #!/bin/bash
 module load bioinfo/PLINK/2.00a4
 
-plink2 --bfile BeeMuse --make-rel square --nonfounders
-plink2 --bfile BeeMuse --pca  --nonfounders
+plink2 --bfile BeeMuse --make-rel square  --out BeeMuse_acp --allow-extra-chr
+plink2 --bfile BeeMuse --pca --out BeeMuse_acp --allow-extra-chr
+
+echo "done"
 ```
+
 # SeqApiPop
 ## Obtention des données
+
 - Récupérer les fichiers de référence SeqApiPop (Wragg et al., 2021), avec le fichier VCF de 7 023 689 SNPs des 870 échantillons d'abeilles domestiques et la liste des 629 échantillons de référence pour les analyses de structure des populations à extraire depuis [zenodo](https://zenodo.org/records/5592452)
 > Diversity_Study_629_Samples.txt
 
@@ -100,7 +104,7 @@ zcat MetaGenotypesCalled870_raw_snps_allfilter.vcf.gz | head
 
 ## Conversion du fichier VCF au format plink (.bed, .bim, .fam)
 
-- substForPlinkWrite.sh
+- substForPlinkWrite.bash
 ```
 #!/bin/bash
 
@@ -125,11 +129,10 @@ grep -v '^#' MetaGenotypesCalled870_raw_snps_allfilter_plink.vcf | wc -l
 ```
 => **7 023 976** SNPs
 
-
-- select629.sh
+- select629.bash
 ```
 #! /bin/bash
-#select629.sh
+#select629.bash
 
 module load bioinfo/PLINK/1.90b7
 module load bioinfo/Bcftools/1.9
@@ -167,10 +170,10 @@ Une liste de 629 échantillons est sélectionnée pour les analyses de structure
 - Les échantillons d'une autre étude
 - Les 15 échantillons avec > 0,1 de données manquantes.
 
-- select629_LD.sh
+- select629_LD.bash
 ```
 #! /bin/bash
-#select629_LD.sh
+#select629_LD.bash
 
 module load bioinfo/PLINK/1.90b7
 
@@ -198,7 +201,7 @@ plink --bfile ${NAME2}_pruned \
 - launchAdmixtureRunsWriteScriptsMAF001.bash
 ```
 #!/bin/bash
-#launchAdmixtureRunsWriteScriptsMAF001.sh
+#launchAdmixtureRunsWriteScriptsMAF001.bash
 
 LD=LD03
 
@@ -227,7 +230,7 @@ echo done >> SeqApiPop_629_MAF001_${LD}rep${i}/admixtureAnalysis.sh
 done
 ```
 
-- obtainCVerrorAllSeqApiPop.sh
+- obtainCVerrorAllSeqApiPop.bash
 ```
 #!/bin/bash
 
@@ -244,12 +247,10 @@ grep CV ${i}/*log* | \
 done
 ```
 
-
-
 - remaneQmatrixes.bash
 ```
 #!/bin/bash
-#renameQmatrixes.sh
+#renameQmatrixes.bash
 
 #copies and renames the Q matrix outputs in the directory Qfiles
 
@@ -284,6 +285,7 @@ ls  ../Qfiles/* | \
 	awk 'BEGIN{FS=".";OFS="\t"}{print $1"_"$2"_"$3"_"$4, $2, ".."$6"."$7"."$8"."$9}' | \
 	awk 'BEGIN{OFS="\t"}{print $1,$2,$3}' > pong_filemap_629_maf001_LD03_K2K12
 ```
+
 ### PONG
 
 ```
@@ -295,6 +297,8 @@ awk -F',' 'NR==FNR{a[$1]=$6; next} {print a[$1]}' SeqApiPop_labels.csv ind2pop_6
 sed -i 's/ /_/g' ind2pop_629_Label.list
 sed -i 's/ /_/g' ind2pop_629_GeographicOrigin.list
 ```
+
+- popOrder_629_Label.list
 
 ```
 Iberiensis_Spain IberiensisSpain
@@ -331,10 +335,8 @@ Unknown Unknown
 ```
 
 Création du fichier des couleurs pour la visualisation Admixture
-```
-touch colors
-nano colors
-```
+
+- colors
 ```
 black
 #FE9001
@@ -360,9 +362,10 @@ pong -m pong_filemap_629_maf001_LD03_K2K9 -n popOrder_629_Label.list -i ind2pop_
 
 ## ACP
 
-- acpseqapipop.sh
+- acpseqapipop.bash
 ```
 #!/bin/bash
+#acpseqapipop.bash
 module load bioinfo/PLINK/2.00a4
 
 plink2 --bfile subset_501_samples_ref --make-rel square --nonfounders --out subset_501_samples_ref
@@ -371,33 +374,229 @@ plink2 --bfile subset_501_samples_ref --pca --nonfounders --out subset_501_sampl
 echo "done"
 ```
 
-Refaire la même chose seulement reference populations
-```
-filtered_data <- subset(eigenvec_501_seq_api_labels, Label != 'Ariege Conservatory' & Label != 'Brittany Conservatory' & UniqueInHive != 'Unknown' & UniqueInHive != 'Buckfast' & GeneticOrigin != 'Buckfast')
-```
 lien E756_BeeMuSe_num_chr_2col.map et list_markers_ID_to_keep.csv
 
 .map : Marker ID ($2)
 .csv : probeset_id ($1)
 
-puis refaire ACP - beemuse 
 ```
 awk -F';' 'NR>1 {print $1}' list_markers_ID_to_keep.csv > list_markers_ID_to_keep.txt
 ```
 ```
 plink --file E756_BeeMuSe_num_chr_2col --make-bed --no-parents --no-sex --no-pheno -out BeeMuse
 ```
+
 - extractlistmarkersID.bash
 ```
+#!/bin/bash
+#extractlistmarkersID.bash
 module load bioinfo/PLINK/1.90b7
+
 # Supprimer les marqueurs indésirables du fichier BED
 plink --bfile BeeMuse --extract list_markers_ID_to_keep.txt --make-bed --out BeeMuse_filtered
 ```
 
 Effectuer l'ACP sur les données filtrées
 
-- acpBeeMusesamples.sh
+- acpRefPop.bash
+```
+#!/bin/bash
+#acpRefPop.bash
+module load bioinfo/PLINK/2.00a4
 
+plink2 --bfile subset_RefPop_samples_filtered --make-rel square --nonfounders --out subset_RefPop_samples_filtered_acp --allow-extra-chr
+plink2 --bfile subset_RefPop_samples_filtered --pca  --nonfounders --out subset_RefPop_samples_filtered_acp --allow-extra-chr
+
+echo "done"
+```
+
+
+## SeqApiPop - MAF > 0.01 + LD pruning = 0.1 (fenêtre de 50 et pas de 10 bp)
+
+- maf001.bash
+```
+#! /bin/bash
+#maf001.bash
+module load bioinfo/PLINK/1.90b7
+
+NAME=subset_RefPop_samples_filtered
+plink --bfile ${NAME} \
+  --maf 0.01 \
+  --out ${NAME}_maf001 \
+  --make-bed
+```
+
+ Filtre LD par défault et  ACP
+ 
+- filterLD.bash
+```
+#! /bin/bash
+#filterLD.bash
+
+module load bioinfo/PLINK/1.90b7
+module load bioinfo/PLINK/2.00a4
+
+NAME1=subset_RefPop_samples_filtered_maf001
+NAME2=subset_RefPop_samples_filtered_maf001_LD_default
+
+plink --bfile ${NAME1} \
+  --out ${NAME2} \
+  --indep-pairwise 50 10 0.1
+
+plink --bfile ${NAME1} \
+  --out ${NAME2}_pruned \
+  --extract ${NAME2}.prune.in \
+  --make-bed
+
+plink2 --bfile ${NAME2}_pruned --make-rel square --nonfounders --out ${NAME2}_acp --allow-extra-chr
+plink2 --bfile ${NAME2}_pruned --pca --nonfounders --out ${NAME2}_acp --allow-extra-chr
+```
+
+## Jeu de données de référence sans Mellifera Colonsay / Ouessant - 561 échantillons
+
+On enlève les échantillons SeqApiPop des populaitons Mellifera Colonsay / Ouessant
+
+On extrait la liste des noms des 561 échantillons à garder dans : Diversity_Study_561_Samples.txt, puis on relance les scripts permettant les analyses d'ACP et d'Admixture.
+
+- select561.bash
+```
+#!/bin/bash
+#select561.bash
+
+module load bioinfo/PLINK/1.90b7
+module load bioinfo/Bcftools/1.9
+
+bcftools view -S Diversity_Study_561_Samples.txt MetaGenotypesCalled870_raw_snps_allfilter_plink.vcf.gz > MetaGenotypesCalled870_raw_snps_allfilter_plink_561.vcf.gz
+
+NAME=SeqApiPop_561
+
+VCFin=MetaGenotypesCalled870_raw_snps_allfilter_plink_561.vcf.gz
+VCFout=${NAME}
+
+plink --vcf ${VCFin} \
+  --keep-allele-order \
+  --a2-allele ${VCFin} 4 3 '#' \
+  --allow-no-sex \
+  --allow-extra-chr \
+  --chr-set 16 \
+  --set-missing-var-ids @:#[HAV3.1]\$1\$2 \
+  --chr 1-16 \
+  --mind 0.1 \
+  --geno 0.1 \
+  --out ${VCFout} \
+  --make-bed \
+  --missing
+
+plink --bfile ${VCFout} \
+  --maf 0.01 \
+  --out ${VCFout}_maf001 \
+  --make-bed
+```
+
+- select561_LD.bash
+```
+#!/bin/bash
+#select561_LD.bash
+
+module load bioinfo/PLINK/1.90b7
+
+NAME1=SeqApiPop_561_maf001
+NAME2=SeqApiPop_561_maf001_LD03
+
+plink --bfile ${NAME1} \
+  --out ${NAME2} \
+  --indep-pairwise 1749 175 0.3
+
+plink --bfile ${NAME1} \
+  --out ${NAME2}_pruned \
+  --extract ${NAME2}.prune.in \
+  --make-bed
+
+plink --bfile ${NAME2}_pruned \
+  --out ${NAME2}_acp \
+  --pca
+
+plink --bfile ${NAME2}_pruned \
+  --out ${NAME2}_acp \
+  --make-rel square
+```
+
+- launchAdmixtureRunsWriteScripts561MAF001.bash
+```
+#!/bin/bash
+#launchAdmixtureRunsWriteScripts561MAF001.bash
+
+LD=LD03
+
+for i in $(seq 00 29)
+do
+mkdir SeqApiPop_561_MAF001_${LD}rep${i}
+
+echo \#!/bin/bash > SeqApiPop_561_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo
+echo \#admixtureAnalysis_multiThread.sh >> SeqApiPop_561_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo >> SeqApiPop_561_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo module load bioinfo/ADMIXTURE/1.3.0
+ >> SeqApiPop_561_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo >> SeqApiPop_561_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo IN=SeqApiPop_561_maf001_${LD}_pruned.bed >> SeqApiPop_561_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo >> SeqApiPop_561_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo "for K in 2 3 4 5 6 7 8 9 10 11 12;" >> SeqApiPop_561_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo do >> SeqApiPop_561_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo -e sbatch --cpus-per-task=4 --mem-per-cpu=4G \\ >> SeqApiPop_561_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo -e "	-J \${K}admixt -o \${IN}.\${K}.o -e \${IN}.\${K}.e" \\ >> SeqApiPop_561_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo -en '	--wrap="admixture --cv'  >> SeqApiPop_561_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo -en " -s ${RANDOM}"  >> SeqApiPop_561_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo  -e ' ../${IN} ${K} -j4 | tee ${IN}.log${K}"' >> SeqApiPop_561_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo done >> SeqApiPop_561_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+
+done
+```
+- Obtenir les erreurs de CV d'Admixture : 
+```
+grep "CV" *log* | awk '{print $3,$4}' | sed -e 's/(//;s/)//;s/://;s/K=//'  > SeqApiPop_561_maf001_LD03_1.cv.error
+```
+- Créer le fichier PONG des matrices Q d'Admixture : 
+```
+ls ../SeqApiPop_561_maf001_LD03/* | grep LD03 | grep -vE '\.10\.|\.11\.|\.12\.' | awk 'BEGIN{FS="/";OFS="\t"}{print $3, $0}' | awk 'BEGIN{FS=".";OFS="\t"}{print $1"_"$2"_"$3"_"$4, $2, ".."$6"."$7"."$8"."$9}' | awk 'BEGIN{OFS="\t"}{print $1,$2,$3}' > pong_filemap_561_maf001_LD03_K2K9
+```
+
+- popOrder_561_Label.list
+```
+Iberiensis_Spain IberiensisSpain
+Porquerolles_Conservatory MelliferaPorquerolles
+Sollies_Conservatory MelliferaSollies
+Savoy_Conservatory SavoyConservatory
+Ligustica_Italy LigusticaItaly
+Carnica_Slovenia CarnicaSlovenia
+Carnica_Germany CarnicaGermany
+Carnica_France CarnicaFrance
+Carnica_Switzerland CarnicaSwitzerland
+Carnica_Poland CarnicaPoland
+Caucasia_France CaucasiaFrance
+China China
+Royal_Jelly_France RoyalJellyFrance
+Corsica_Breeder Corsica
+Buckfast_France BuckfastFrance
+Buckfast_Switzerland BuckfastSwitzerland
+Tarn_1_Breeder Tarn1
+Tarn_2_Breeder Tarn2
+Hautes_Pyrenees_Breeder HautesPyrenees
+Ariege_Breeder AriegeBreeder
+Ariege_Conservatory AriegeConservatory
+Brittany_Conservatory BrittanyConservatory
+Brittany_Breeder BrittanyBreeder
+Isere_1_Breeder Isere1Breeder
+Isere_2_Breeder Isere2Breeder
+Herault_Breeder HeraultBreeder
+Sarthe_Breeder Sarthe
+Vaucluse_Breeder VaucluseBreeder
+Unknown Unknown
+```
+- Visualisation d'Admixture avec PONG :
+```
+pong -m pong_filemap_561_maf001_LD03_K2K9 -n popOrder_561_Label.list -i ind2pop_561_Label.list -l colors_K9 -s 0.98
+```
 
 # Merged Data - Fusion des deux jeux de données
 ```
@@ -490,6 +689,7 @@ module load devel/python/Python-3.11.1
 python dico_CHR_POS_ID.py
 ```
 ```
+#dico_CHR_POS_ID.py
 import re
 
 def dico_CHR_POS_ID(nom_fichier_1):
@@ -577,35 +777,22 @@ NC_037638.1_36727: .
 ```
 grep 'AX-' list_markers_ID_to_keep.txt | wc -l
 ```
-=> 10256
+=> **10256** SNPs
 ```
 grep 'AX-' E756_BeeMuSe.vcf | wc -l
 ```
-=> 12000
+=> **12000** SNPs
 ```
 grep 'AX-' subset_RefPop_samples_ref_2.vcf | wc -l
 ```
-=> 11709
+=> **11709** SNPs
 
 On a 11709 marqueurs en commun entre E756_BeeMuSe.vcf et subset_RefPop_samples_ref_2.vcf
-
-- vcftoplinkRefPop.sh
-```
-#!/bin/bash
-#SBATCH --mem=8G
-
-module load bioinfo/Bcftools/1.9
-module load bioinfo/PLINK/2.00a4
-
-bcftools norm -m-any --output-type z -o subset_501_samples_ref_split.vcf.gz subset_501_samples_ref.vcf
-plink2 --vcf subset_501_samples_ref_split.vcf.gz --make-bed --out subset_501_samples_ref --allow-extra-chr
-
-echo "done"
-```
 
 - extractlistmarkersID.sh
 ```
 #!/bin/bash
+#extractlistmarkersID.sh
 module load bioinfo/PLINK/1.90b7
 
 # Supprimer les marqueurs indésirables du fichier BED
@@ -626,39 +813,56 @@ grep 'AX-' subset_RefPop_samples_filtered.bim | wc -l
 
 Soit **10030** SNPs filtrés en commun entre les 7023976 SNPs du jeu de données de référence des 870 échantillons SeqApiPop et les 10256 SNPs de bonne qualité à garder de la puce BeeMuSe.
 
-- maf001.sh
+On extrait les 561 échantillons de référence d'intérêt et on applique les filtres MAF > 0.01 et LD pruning = 0.1 avec une fenêtre de 50 SNPs et un pas de 10 bp. 
+
+Ensuite on récupère les identifiants des marqueurs obtenu après le filtre LD 
 ```
-#! /bin/bash
+awk '{print $2}' SeqApiPop_561_SNPsBeeMuSe_filtered_maf001_LD_default_pruned.bim > marker_ids_filtered_maf001_LD_default.txt
+```
+```
+less -S marker_ids_filtered_maf001_LD_default.txt | wc -l
+```
+=> **1055** SNPs après filtre MAF > 0.01 et LD pruning = 0.1 (fenêtre de 50 SNPs et pas de 10 bp)
+
+Extraction des  1055 marqueurs du fichier VCF BeeMuSe
+
+- extractlistmarkersIDbeemuse.bash
+```
+#!/bin/bash
+#extractlistmarkersIDbeemuse.bash
 module load bioinfo/PLINK/1.90b7
 
-NAME=subset_RefPop_samples_filtered
-plink --bfile ${NAME} \
-  --maf 0.01 \
-  --out ${NAME}_maf001 \
-  --make-bed
+plink --bfile BeeMuse_filtered --extract marker_ids_filtered_maf001_LD_default.txt --make-bed --out BeeMuSe_filtered_maf001_LD_default --allow-extra-chr
 ```
-
- Filtre LD par défault
- 
-- filterLD.sh
 ```
-#! /bin/bash
+less BeeMuSe_filtered_maf001_LD_default.bim | wc -
+```
+=> **1055** SNPs
 
+On a bien les mêmes marqueurs dans les deux jeux de données, on peut alors les fusionner :
+
+- bmerge.bash
+```
+#!/bin/bash
+#bmerge.bash
 module load bioinfo/PLINK/1.90b7
+
+plink --bfile BeeMuSe_filtered_maf001_LD_default \
+   	--bmerge SeqApiPop_561_SNPsBeeMuSe_filtered_maf001_LD_default_pruned.bed \
+            	SeqApiPop_561_SNPsBeeMuSe_filtered_maf001_LD_default_pruned.bim \
+            	SeqApiPop_561_SNPsBeeMuSe_filtered_maf001_LD_default_pruned.fam \
+   	--make-bed \
+   	--out merged_BeeMuSe_SeqApiPop_561_filtered_maf001_LD_default
+```
+
+## ACP
+
+- acpmergedBeeMuSeSeqApiPop.bash
+```
+#!/bin/bash
+#acpmergedBeeMuSeSeqApiPop.bash
 module load bioinfo/PLINK/2.00a4
 
-NAME1=subset_RefPop_samples_filtered_maf001
-NAME2=subset_RefPop_samples_filtered_maf001_LD_default
-
-plink --bfile ${NAME1} \
-  --out ${NAME2} \
-  --indep-pairwise 50 10 0.1
-
-plink --bfile ${NAME1} \
-  --out ${NAME2}_pruned \
-  --extract ${NAME2}.prune.in \
-  --make-bed
-
-plink2 --bfile ${NAME2}_pruned --make-rel square --nonfounders --out ${NAME2}_acp --allow-extra-chr
-plink2 --bfile ${NAME2}_pruned --pca --nonfounders --out ${NAME2}_acp --allow-extra-chr
+plink2 --bfile merged_BeeMuSe_SeqApiPop_561_filtered_maf001_LD_default --make-rel square  --out merged_BeeMuSe_SeqApiPop_561_filtered_maf001_LD_default_acp --allow-extra-chr
+plink2 --bfile merged_BeeMuSe_SeqApiPop_561_filtered_maf001_LD_default --pca --out merged_BeeMuSe_SeqApiPop_561_filtered_maf001_LD_default_acp --allow-extra-chr
 ```
