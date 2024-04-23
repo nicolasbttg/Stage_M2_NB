@@ -14,7 +14,7 @@ Les scripts R pour réaliser certaines analyses et obtenir les figures sont acce
 ```
 wc -l E756_BeeMuSe.map
 ```
-Le jeu de données BeeMuSe correspond à 12000 SNPs pour 748 échantillons
+Le jeu de données BeeMuSe correspond à 12000 SNPs pour 748 échantillons d'abeilles domestiques
 
 ## Conversion au format plink
 
