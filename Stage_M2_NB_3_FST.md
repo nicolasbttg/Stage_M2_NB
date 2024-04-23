@@ -10,7 +10,7 @@ library(qqman)
 library(vioplot)
 ```
 
-# Analyse de l'indice de différenciation génétique (FST) des SNPS
+# Analyse de l'indice de différenciation génétique (FST) des SNPs
 
 ## SeqApiPop - 629 échantillons - SNPsBeeMuSe filtered
 
