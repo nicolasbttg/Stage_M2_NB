@@ -8,4 +8,4 @@ Université Toulouse III - Paul Sabatier - 2023 / 2024
 
 Nicolas BETTEMBOURG.
 
-Mots-clés : Génome - Abeille domestique - Génomique des populations - Sélection - SNP
+Mots-clés : Génome - *Apis mellifera* - Génomique des populations - Sélection - SNP
