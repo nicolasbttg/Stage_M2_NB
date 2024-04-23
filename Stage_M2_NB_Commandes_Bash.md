@@ -536,22 +536,22 @@ echo \#!/bin/bash > SeqApiPop_561_MAF001_${LD}rep${i}/admixtureAnalysis.sh
 echo
 echo \#admixtureAnalysis_multiThread.sh >> SeqApiPop_561_MAF001_${LD}rep${i}/admixtureAnalysis.sh
 echo >> SeqApiPop_561_MAF001_${LD}rep${i}/admixtureAnalysis.sh
-echo module load bioinfo/ADMIXTURE/1.3.0
- >> SeqApiPop_561_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo module load bioinfo/ADMIXTURE/1.3.0 >> SeqApiPop_561_MAF001_${LD}rep${i}/admixtureAnalysis.sh
 echo >> SeqApiPop_561_MAF001_${LD}rep${i}/admixtureAnalysis.sh
 echo IN=SeqApiPop_561_maf001_${LD}_pruned.bed >> SeqApiPop_561_MAF001_${LD}rep${i}/admixtureAnalysis.sh
 echo >> SeqApiPop_561_MAF001_${LD}rep${i}/admixtureAnalysis.sh
 echo "for K in 2 3 4 5 6 7 8 9 10 11 12;" >> SeqApiPop_561_MAF001_${LD}rep${i}/admixtureAnalysis.sh
 echo do >> SeqApiPop_561_MAF001_${LD}rep${i}/admixtureAnalysis.sh
 echo -e sbatch --cpus-per-task=4 --mem-per-cpu=4G \\ >> SeqApiPop_561_MAF001_${LD}rep${i}/admixtureAnalysis.sh
-echo -e "	-J \${K}admixt -o \${IN}.\${K}.o -e \${IN}.\${K}.e" \\ >> SeqApiPop_561_MAF001_${LD}rep${i}/admixtureAnalysis.sh
-echo -en '	--wrap="admixture --cv'  >> SeqApiPop_561_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo -e "       -J \${K}admixt -o \${IN}.\${K}.o -e \${IN}.\${K}.e" \\ >> SeqApiPop_561_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo -en '      --wrap="admixture --cv'  >> SeqApiPop_561_MAF001_${LD}rep${i}/admixtureAnalysis.sh
 echo -en " -s ${RANDOM}"  >> SeqApiPop_561_MAF001_${LD}rep${i}/admixtureAnalysis.sh
 echo  -e ' ../${IN} ${K} -j4 | tee ${IN}.log${K}"' >> SeqApiPop_561_MAF001_${LD}rep${i}/admixtureAnalysis.sh
 echo done >> SeqApiPop_561_MAF001_${LD}rep${i}/admixtureAnalysis.sh
 
 done
 ```
+
 - Obtenir les erreurs de CV d'Admixture : 
 ```
 grep "CV" *log* | awk '{print $3,$4}' | sed -e 's/(//;s/)//;s/://;s/K=//'  > SeqApiPop_561_maf001_LD03_1.cv.error
@@ -815,6 +815,87 @@ Soit **10030** SNPs filtrés en commun entre les 7023976 SNPs du jeu de données
 
 On extrait les 561 échantillons de référence d'intérêt et on applique les filtres MAF > 0.01 et LD pruning = 0.1 avec une fenêtre de 50 SNPs et un pas de 10 bp. 
 
+- samples_to_remove.txt
+```
+Ab-PacBio Ab-PacBio
+OUE1 OUE1
+OUE2 OUE2
+OUE3 OUE3
+OUE4 OUE4
+OUE5 OUE5
+OUE6 OUE6
+OUE7 OUE7
+OUE9 OUE9
+OUE10 OUE10
+OUE11 OUE11
+OUE12 OUE12
+OUE13 OUE13
+OUE14 OUE14
+OUE15 OUE15
+OUE16 OUE16
+OUE17 OUE17
+OUE18 OUE18
+OUE19 OUE19
+OUE20 OUE20
+OUE21 OUE21
+OUE22 OUE22
+OUE23 OUE23
+OUE24 OUE24
+OUE25 OUE25
+OUE26 OUE26
+OUE27 OUE27
+OUE28 OUE28
+OUE29 OUE29
+OUE30 OUE30
+OUE31 OUE31
+OUE32 OUE32
+OUE33 OUE33
+OUE34 OUE34
+OUE35 OUE35
+OUE36 OUE36
+OUE37 OUE37
+OUE38 OUE38
+OUE39 OUE39
+OUE40 OUE40
+UK1A UK1A
+UK2A UK2A
+UK3A UK3A
+UK4A UK4A
+UK5A UK5A
+UK6A UK6A
+UK7A UK7A
+UK8A UK8A
+UK9A UK9A
+UK10A UK10A
+UK11A UK11A
+UK12A UK12A
+UK13A UK13A
+UK14A UK14A
+UK15A UK15A
+UK16A UK16A
+UK17A UK17A
+UK18A UK18A
+UK19A UK19A
+UK20A UK20A
+UK21A UK21A
+UK22A UK22A
+UK23A UK23A
+UK25A UK25A
+UK26A UK26A
+UK27A UK27A
+UK28A UK28A
+UK29A UK29A
+```
+
+- removeMelliferaColonsayOuessantSamples.bash
+```
+#!/bin/bash
+#removeMelliferaColonsayOuessantSamples.bash
+module load bioinfo/PLINK/1.90b7
+
+plink --bfile SeqApiPop_561_SNPsBeeMuSe_filtered_maf001_LD_default_pruned --remove samples_to_remove.txt --make-bed --out SeqApiPop_561_SNPsBeeMuSe_filtered_maf001_LD_default_pruned
+```
+
 Ensuite on récupère les identifiants des marqueurs obtenu après le filtre LD 
 ```
 awk '{print $2}' SeqApiPop_561_SNPsBeeMuSe_filtered_maf001_LD_default_pruned.bim > marker_ids_filtered_maf001_LD_default.txt
@@ -866,3 +947,405 @@ module load bioinfo/PLINK/2.00a4
 plink2 --bfile merged_BeeMuSe_SeqApiPop_561_filtered_maf001_LD_default --make-rel square  --out merged_BeeMuSe_SeqApiPop_561_filtered_maf001_LD_default_acp --allow-extra-chr
 plink2 --bfile merged_BeeMuSe_SeqApiPop_561_filtered_maf001_LD_default --pca --out merged_BeeMuSe_SeqApiPop_561_filtered_maf001_LD_default_acp --allow-extra-chr
 ```
+
+## Admixture - PONG
+
+### Admixture non supervisée
+
+On exécute 30 fois l'Admixture non supervisée pour le jeu de données fusionnée.
+
+- launchAdmixtureRunsWriteScriptsmerged.bash
+```
+#!/bin/bash
+#launchAdmixtureRunsWriteScriptsmerged.bash
+
+LD=LD_default
+
+for i in $(seq 0 29)
+do
+mkdir merged_BeeMuSe_SeqApiPop_561_filtered_MAF001_${LD}rep${i}
+
+echo \#!/bin/bash > merged_BeeMuSe_SeqApiPop_561_filtered_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo
+echo \#admixtureAnalysis_multiThread.sh >> merged_BeeMuSe_SeqApiPop_561_filtered_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo >> merged_BeeMuSe_SeqApiPop_561_filtered_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo module load bioinfo/ADMIXTURE/1.3.0  >> merged_BeeMuSe_SeqApiPop_561_filtered_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo >> merged_BeeMuSe_SeqApiPop_561_filtered_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo IN=merged_BeeMuSe_SeqApiPop_561_filtered_maf001_${LD}.bed >> merged_BeeMuSe_SeqApiPop_561_filtered_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo >> merged_BeeMuSe_SeqApiPop_561_filtered_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo "for K in 2 3 4 5 6 7 8 9 10 11 12;" >> merged_BeeMuSe_SeqApiPop_561_filtered_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo do >> merged_BeeMuSe_SeqApiPop_561_filtered_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo -e sbatch --cpus-per-task=4 --mem-per-cpu=4G \\ >> merged_BeeMuSe_SeqApiPop_561_filtered_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo -e "       -J \${K}admixt -o \${IN}.\${K}.o -e \${IN}.\${K}.e" \\ >> merged_BeeMuSe_SeqApiPop_561_filtered_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo -en '      --wrap="admixture --cv'  >> merged_BeeMuSe_SeqApiPop_561_filtered_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo -en " -s ${RANDOM}"  >> merged_BeeMuSe_SeqApiPop_561_filtered_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo  -e ' ../${IN} ${K} -j4 | tee ${IN}.log${K}"' >> merged_BeeMuSe_SeqApiPop_561_filtered_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+echo done >> merged_BeeMuSe_SeqApiPop_561_filtered_MAF001_${LD}rep${i}/admixtureAnalysis.sh
+
+done
+```
+
+On récupère les erreurs de CV
+```
+grep "CV" *log* | awk '{print $3,$4}' | sed -e 's/(//;s/)//;s/://;s/K=//'  > merged_BeeMuSe_SeqApiPop_629_filtered_maf001_LD_default_1.cv.error
+```
+
+Création du fichier pong Admixture de K2 à K12
+```
+ls ../merged_data_3848/* | grep LD | awk 'BEGIN{FS="/";OFS="\t"}{print $3, $0}' | awk 'BEGIN{FS=".";OFS="\t"}{print $1"_"$2"_"$3"_"$4, $2, ".."$6"."$7"."$8"."$9}' | awk 'BEGIN{OFS="\t"}{print $1,$2,$3}' > pong_filemap_merged_data_1055_K2K12
+```
+
+Création du fichier pong Admixture de K2 à K9
+```
+ls ../merged_data_1055/* | grep LD | grep -vE '\.10\.|\.11\.|\.12\.' | awk 'BEGIN{FS="/";OFS="\t"}{print $3, $0}' | awk 'BEGIN{FS=".";OFS="\t"}{print $1"_"$2"_"$3"_"$4, $2, ".."$6"."$7"."$8"."$9}' | awk 'BEGIN{OFS="\t"}{print $1,$2,$3}' > pong_filemap_merged_data_1055_K2K9
+```
+
+```
+awk '{print $1, $2}' merged_BeeMuSe_SeqApiPop_561_filtered_maf001_LD_default.fam > ind2pop_merged_data.txt
+```
+
+- popOrder_merged_data_561.list 
+```
+Iberiensis_Spain        IberiensisSpain
+Porquerolles_Conservatory       MelliferaPorquerolles
+Sollies_Conservatory    MelliferaSollies
+Savoy_Conservatory      SavoyConservatory
+Ligustica_Italy LigusticaItaly
+Carnica_Slovenia        CarnicaSlovenia
+Carnica_Germany CarnicaGermany
+Carnica_France  CarnicaFrance
+Carnica_Switzerland     CarnicaSwitzerland
+Carnica_Poland  CarnicaPoland
+Caucasia_France CaucasiaFrance
+China   China
+Royal_Jelly_France      RoyalJellyFrance
+Corsica_Breeder Corsica
+Buckfast_France BuckfastFrance
+Buckfast_Switzerland    BuckfastSwitzerland
+Tarn_1_Breeder  Tarn1
+Tarn_2_Breeder  Tarn2
+Hautes_Pyrenees_Breeder HautesPyrenees
+Ariege_Breeder  AriegeBreeder
+Ariege_Conservatory     AriegeConservatory
+Brittany_Conservatory   BrittanyConservatory
+Brittany_Breeder        BrittanyBreeder
+Isere_1_Breeder Isere1Breeder
+Isere_2_Breeder Isere2Breeder
+Herault_Breeder HeraultBreeder
+Sarthe_Breeder  Sarthe
+Vaucluse_Breeder        VaucluseBreeder
+Unknown UnknownSeqApiPop
+Beemuse UnknownBeemuse
+```
+
+```
+pong -m pong_filemap_merged_data_1055_K2K9 -n popOrder_merged_data_561.list -i ind2pop_merged_data.txt -l colors_merged_data_K2K12 -s 0.98
+```
+
+- popOrder_merged_data_ID_2a_561.list 
+```
+Iberiensis_Spain        IberiensisSpain
+Porquerolles_Conservatory       MelliferaPorquerolles
+Sollies_Conservatory    MelliferaSollies
+Savoy_Conservatory      SavoyConservatory
+Ligustica_Italy LigusticaItaly
+Carnica_Slovenia        CarnicaSlovenia
+Carnica_Germany CarnicaGermany
+Carnica_France  CarnicaFrance
+Carnica_Switzerland     CarnicaSwitzerland
+Carnica_Poland  CarnicaPoland
+Caucasia_France CaucasiaFrance
+China   China
+Royal_Jelly_France      RoyalJellyFrance
+Corsica_Breeder Corsica
+Buckfast_France BuckfastFrance
+Buckfast_Switzerland    BuckfastSwitzerland
+Tarn_1_Breeder  Tarn1
+Tarn_2_Breeder  Tarn2
+Hautes_Pyrenees_Breeder HautesPyrenees
+Ariege_Breeder  AriegeBreeder
+Ariege_Conservatory     AriegeConservatory
+Brittany_Conservatory   BrittanyConservatory
+Brittany_Breeder        BrittanyBreeder
+Isere_1_Breeder Isere1Breeder
+Isere_2_Breeder Isere2Breeder
+Herault_Breeder HeraultBreeder
+Sarthe_Breeder  Sarthe
+Vaucluse_Breeder        VaucluseBreeder
+Unknown UnknownSeqApiPop
+Beemuse UnknownBeemuseBeemuse UnknownBeemuse
+BAH_20-19       BAH_20-19
+BBS_6-19        BBS_6-19
+BER_11-19       BER_11-19
+BH_44   BH_44
+BH_7-19 BH_7-19
+BHA_2-20        BHA_2-20
+BLS_53-19       BLS_53-19
+ER_13-19        ER_13-19
+KBJ_1-19        KBJ_1-19
+KBru_6-20       KBru_6-20
+KLoc_37-19      KLoc_37-19
+KLSU_14-19      KLSU_14-19
+MM_31-20        MM_31-20
+MM_37-20        MM_37-20
+MP_10-20        MP_10-20
+PersoBC_2021    PersoBC_2021
+PersoJLL_2021   PersoJLL_2021
+PersoJLL_2022   PersoJLL_2022
+PersoLD_2021    PersoLD_2021
+PersoLD_2022    PersoLD_2022
+PersoUB_2021    PersoUB_2021
+PersoUB_2022    PersoUB_2022
+S_GZ_2-19       S_GZ_2-19
+SBJ_3-19        SBJ_3-19
+SJ_16-20        SJ_16-20
+SJ_24-20        SJ_24-20
+SJ_30-20        SJ_30-20
+TL_13-20        TL_13-20
+TL_19-20        TL_19-20
+```
+
+```
+pong -m pong_filemap_merged_data_1055_K2K12 -n popOrder_merged_data_ID_2a_561.list -i ind2pop_merged_data.txt -l colors_merged_data_K2K12 -s 0.98
+```
+
+### Admixture supervisée
+
+On effectue l'analyse d'Admixture supervisée avec 30 exécutions selon une valeur de K = 3, 6, 7. Et selon un seuil d'appartenance aux individus de références de 0.95 ou 0.90.
+
+Ici, pour K = 3 et un seuil de 0.95 :
+
+- launchAdmixtureRunsWriteScriptsmergedsupervised561LDdefault.bas
+```
+#!/bin/bash
+#launchAdmixtureRunsWriteScriptsmergedsupervised561LDdefault.bash
+
+LD=LD_default_K3_95
+
+for i in $(seq 0 29)
+do
+mkdir merged_BeeMuSe_SeqApiPop_561_filtered_MAF001_${LD}_supervised_rep${i}
+
+echo \#!/bin/bash > merged_BeeMuSe_SeqApiPop_561_filtered_MAF001_${LD}_supervised_rep${i}/admixtureAnalysis.sh
+echo
+echo \#admixtureAnalysis_multiThread.sh >> merged_BeeMuSe_SeqApiPop_561_filtered_MAF001_${LD}_supervised_rep${i}/admixtureAnalysis.sh
+echo >> merged_BeeMuSe_SeqApiPop_561_filtered_MAF001_${LD}_supervised_rep${i}/admixtureAnalysis.sh
+echo module load bioinfo/ADMIXTURE/1.3.0  >> merged_BeeMuSe_SeqApiPop_561_filtered_MAF001_${LD}_supervised_rep${i}/admixtureAnalysis.sh
+echo >> merged_BeeMuSe_SeqApiPop_561_filtered_MAF001_${LD}_supervised_rep${i}/admixtureAnalysis.sh
+echo IN=merged_BeeMuSe_SeqApiPop_561_filtered_maf001_LD_default.bed >> merged_BeeMuSe_SeqApiPop_561_filtered_MAF001_${LD}_supervised_rep${i}/admixtureAnalysis.sh
+echo >> merged_BeeMuSe_SeqApiPop_561_filtered_MAF001_${LD}_supervised_rep${i}/admixtureAnalysis.sh
+echo "for K in 6;" >> merged_BeeMuSe_SeqApiPop_561_filtered_MAF001_${LD}_supervised_rep${i}/admixtureAnalysis.sh
+echo do >> merged_BeeMuSe_SeqApiPop_561_filtered_MAF001_${LD}_supervised_rep${i}/admixtureAnalysis.sh
+echo -e sbatch --cpus-per-task=4 --mem-per-cpu=4G \\ >> merged_BeeMuSe_SeqApiPop_561_filtered_MAF001_${LD}_supervised_rep${i}/admixtureAnalysis.sh
+echo -e "       -J \${K}admixt -o \${IN}.\${K}.o -e \${IN}.\${K}.e" \\ >> merged_BeeMuSe_SeqApiPop_561_filtered_MAF001_${LD}_supervised_rep${i}/admixtureAnalysis.sh
+echo -en '      --wrap="admixture --cv'  >> merged_BeeMuSe_SeqApiPop_561_filtered_MAF001_${LD}_supervised_rep${i}/admixtureAnalysis.sh
+echo -en " -s ${RANDOM}"  >> merged_BeeMuSe_SeqApiPop_561_filtered_MAF001_${LD}_supervised_rep${i}/admixtureAnalysis.sh
+echo  -e ' ../${IN} ${K} -j4 --supervised | tee ${IN}.log${K}"' >> merged_BeeMuSe_SeqApiPop_561_filtered_MAF001_${LD}_supervised_rep${i}/admixtureAnalysis.sh
+echo done >> merged_BeeMuSe_SeqApiPop_561_filtered_MAF001_${LD}_supervised_rep${i}/admixtureAnalysis.sh
+
+done
+```
+
+```
+ls ../merged_data_1055_K3_95_supervised/* | grep LD | awk 'BEGIN{FS="/";OFS="\t"}{print $3, $0}' | awk 'BEGIN{FS=".";OFS="\t"}{print $1"_"$2"_"$3"_"$4, $2, ".."$6"."$7"."$8"."$9}' | awk 'BEGIN{OFS="\t"}{print $1,$2,$3}' > pong_filemap_merged_data_K3_95_supervised
+```
+
+```
+pong -m pong_filemap_merged_data_K3_95_supervised -n popOrder_merged_data.list -i ind2pop_merged_data.txt -l colors_merged_data -s 0.98
+```
+```
+pong -m pong_filemap_merged_data_K3_95_supervised -n popOrder_merged_data_ID_2a.list -i ind2pop_merged_data_ID_2a.txt -l colors_merged_data -s 0.98
+```
+
+```
+grep "CV" *log* | awk '{print $3,$4}' | sed -e 's/(//;s/)//;s/://;s/K=//'  > merged_BeeMuSe_SeqApiPop_561_filtered_MAF001_LD_default_K3_95_supervised_1.cv.error
+```
+
+# Analyse de différenciation genetique (FST)
+
+- seqapipop_629_fst_file
+```
+...
+AOC36 AOC36 Noir
+AOC37 AOC37 Noir
+AOC38 AOC38 Noir
+AOC39 AOC39 Noir
+AOC40 AOC40 Noir
+AOC41 AOC41 Noir
+AOC42 AOC42 Noir
+BER2 BER2 Orange
+BER4 BER4 Orange
+BER5 BER5 Orange
+BER6 BER6 Orange
+BER7 BER7 Orange
+BER8 BER8 Orange
+BER9 BER9 Orange
+...
+```
+
+- FST - 10030 SNPs
+
+```
+#! /bin/bash
+module load bioinfo/PLINK/1.90b7
+
+plink --bfile SeqApiPop_629_SNPsBeeMuSe_filtered --fst --within seqapipop_629_fst_file.txt --out SeqApiPop_629_SNPsBeeMuSe_filtered_fst
+```
+
+- FST - 1055 SNPs
+
+```
+#! /bin/bash
+module load bioinfo/PLINK/1.90b7
+
+plink --bfile SeqApiPop_629_SNPsBeeMuSe_filtered_maf001_LD_default_pruned --fst --within seqapipop_629_fst_file.txt --out SeqApiPop_629_SNPsBeeMuSe_filtered_maf001_LD_default_pruned
+```
+
+# Analyse de l'IBD - IBS - KINSHIP
+
+- plinkgenomekeep.bash
+```
+#!/bin/bash
+#plinkgenomekeep.bash
+module load bioinfo/PLINK/1.90b7
+
+plink --bfile BeeMuse --genome --keep liste_individus_beemuse_ibd.txt --out BeeMuse_genome
+```
+
+- plinkgenome.bash
+```
+#!/bin/bash
+#plinkgenome.bash
+module load bioinfo/PLINK/1.90b7
+
+plink --bfile BeeMuse --genome --out BeeMuse_genome
+```
+- PI_HAT  :  P(IBD=2)+0.5*P(IBD=1) (proportion IBD)
+- DST    :   IBS distance (IBS2 + 0.5*IBS1) / (N SNP pairs)
+
+- plinkgenomeID2a.bash
+```
+#! /bin/bash
+#plinkgenomeID2a.bash
+
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' bbs_6_19.txt BeeMuse_genome_full.genome > BBS_6-19.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' bah_20_19.txt BeeMuse_genome_full.genome > BAH_20-19.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' ber_11_19.txt BeeMuse_genome_full.genome > BER_11-19.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' bh_44.txt BeeMuse_genome_full.genome > BH_44.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' bh_7-19.txt BeeMuse_genome_full.genome > BH_7-19.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' bha_2-20.txt BeeMuse_genome_full.genome > BHA_2-20.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' bls_53-19.txt BeeMuse_genome_full.genome > BLS_53-19.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' er_13-19.txt BeeMuse_genome_full.genome > ER_13-19.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' kbj_1-19.txt BeeMuse_genome_full.genome > KBJ_1-19.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' kbru_6-20.txt BeeMuse_genome_full.genome > KBru_6-20.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' kloc_37-19.txt BeeMuse_genome_full.genome > KLoc_37-19.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' klsu_14-19.txt BeeMuse_genome_full.genome > KLSU_14-19.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' mm_31-20.txt BeeMuse_genome_full.genome > MM_31-20.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' mm_37-20.txt BeeMuse_genome_full.genome > MM_37-20.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' mp_10-20.txt BeeMuse_genome_full.genome > MP_10-20.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persobc_2021.txt BeeMuse_genome_full.genome > PersoBC_2021.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persojll_2021.txt BeeMuse_genome_full.genome > PersoJLL_2021.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persojll_2022.txt BeeMuse_genome_full.genome > PersoJLL_2022.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persold_2021.txt BeeMuse_genome_full.genome > PersoLD_2021.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persold_2022.txt BeeMuse_genome_full.genome > PersoLD_2022.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persoub_2021.txt BeeMuse_genome_full.genome > PersoUB_2021.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persoub_2022.txt BeeMuse_genome_full.genome > PersoUB_2022.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' s_gz_2-19.txt BeeMuse_genome_full.genome > S_GZ_2-19.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' sbj_3-19.txt BeeMuse_genome_full.genome > SBJ_3-19.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' sj_16-20.txt BeeMuse_genome_full.genome > SJ_16-20.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' sj_24-20.txt BeeMuse_genome_full.genome > SJ_24-20.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' sj_30-20.txt BeeMuse_genome_full.genome > SJ_30-20.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' tl_13-20.txt BeeMuse_genome_full.genome > TL_13-20.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' tl_19-20.txt BeeMuse_genome_full.genome > TL_19-20.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' unknown.txt BeeMuse_genome_full.genome > Unknown.genome
+```
+
+- plink2genome.bash
+```
+#!/bin/bash
+#plink2genome.bash
+module load bioinfo/PLINK/2.00a4
+
+plink2 --bfile BeeMuse --make-king-table  --out BeeMuse_plink2_genome
+```
+- IBS0 : Proportion de SNPs partagés par descendance entre les deux individus
+- KINSHIP : Coefficient de parenté KING entre les deux individus
+
+- plink2genomeID2a.bash
+
+```
+#! /bin/bash
+#plink2genomeID2a.bash
+
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' bbs_6_19.txt BeeMuse_plink2_genome.kin0 > BBS_6-19_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' bah_20_19.txt BeeMuse_plink2_genome.kin0 > BAH_20-19_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' ber_11_19.txt BeeMuse_plink2_genome.kin0 > BER_11-19_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' bh_44.txt BeeMuse_plink2_genome.kin0 > BH_44_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' bh_7-19.txt BeeMuse_plink2_genome.kin0 > BH_7-19_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' bha_2-20.txt BeeMuse_plink2_genome.kin0 > BHA_2-20_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' bls_53-19.txt BeeMuse_plink2_genome.kin0 > BLS_53-19_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' er_13-19.txt BeeMuse_plink2_genome.kin0 > ER_13-19_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' kbj_1-19.txt BeeMuse_plink2_genome.kin0 > KBJ_1-19_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' kbru_6-20.txt BeeMuse_plink2_genome.kin0 > KBru_6-20_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' kloc_37-19.txt BeeMuse_plink2_genome.kin0 > KLoc_37-19_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' klsu_14-19.txt BeeMuse_plink2_genome.kin0 > KLSU_14-19_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' mm_31-20.txt BeeMuse_plink2_genome.kin0 > MM_31-20_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' mm_37-20.txt BeeMuse_plink2_genome.kin0 > MM_37-20_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' mp_10-20.txt BeeMuse_plink2_genome.kin0 > MP_10-20_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persobc_2021.txt BeeMuse_plink2_genome.kin0 > PersoBC_2021_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persojll_2021.txt BeeMuse_plink2_genome.kin0 > PersoJLL_2021_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persojll_2022.txt BeeMuse_plink2_genome.kin0 > PersoJLL_2022_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persold_2021.txt BeeMuse_plink2_genome.kin0 > PersoLD_2021_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persold_2022.txt BeeMuse_plink2_genome.kin0 > PersoLD_2022_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persoub_2021.txt BeeMuse_plink2_genome.kin0 > PersoUB_2021_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' persoub_2022.txt BeeMuse_plink2_genome.kin0 > PersoUB_2022_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' s_gz_2-19.txt BeeMuse_plink2_genome.kin0 > S_GZ_2-19_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' sbj_3-19.txt BeeMuse_plink2_genome.kin0 > SBJ_3-19_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' sj_16-20.txt BeeMuse_plink2_genome.kin0 > SJ_16-20_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' sj_24-20.txt BeeMuse_plink2_genome.kin0 > SJ_24-20_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' sj_30-20.txt BeeMuse_plink2_genome.kin0 > SJ_30-20_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' tl_13-20.txt BeeMuse_plink2_genome.kin0 > TL_13-20_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' tl_19-20.txt BeeMuse_plink2_genome.kin0 > TL_19-20_plink2.genome
+awk 'NR==FNR {samples[$1" "$2]; next} (FNR==1) || (($1" "$2 in samples) && ($3" "$4 in samples))' unknown.txt BeeMuse_plink2_genome.kin0 > Unknown_plink2.genome
+```
+
+# Extraire les valeurs de CV - matrices Q Admixture
+
+- getcverror.bash
+```
+#!/bin/bash
+#getcverror.bash
+
+# Chemin du répertoire contenant les fichiers .cv.error
+cv_error_directory="/home/nbettembourg/Documents/Stage_NB/data/maf001_LD03"
+
+# Nom du fichier de résultats
+output_file="results_cverror.txt"
+
+# Boucle sur chaque valeur de K
+for k in {2..10}; do
+    	echo "K=$k"
+    	sum=0
+    	count=0
+    	# Boucle sur chaque run
+    	for ((i=1; i<=30; i++)); do
+    	file="$cv_error_directory/SeqApiPop_629_maf001_LD03_${i}.cv.error"
+    	if [ -f "$file" ]; then
+            	cv=$(grep -w "^$k" "$file" | awk '{print $2}')
+            	if [ -n "$cv" ]; then
+            	sum=$(echo "$sum + $cv" | bc)
+            	((count++))
+            	fi
+    	fi
+    	done
+    	if [ "$count" -gt 0 ]; then
+    	average=$(echo "scale=5; $sum / $count" | bc)
+    	echo "mean_cverror=$average"
+    	echo "K=$k mean_cverror=$average" >> "$output_file"
+    	else
+    	echo "No files found for K=$k"
+    	fi
+    	echo
+done
+```
+
