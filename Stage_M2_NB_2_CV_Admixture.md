@@ -1,12 +1,13 @@
 Script Rmarkdown associé :
 - [2_CV_Admixture_Rmd](scripts/Stage_M2_NB_2_CV_Admixture.Rmd)
 - [2_CV_Admixture_html](scripts/Stage_M2_NB_2_CV_Admixture.html)
-  
+
 ## Chargement des packages R
 
 ```{r}
 library(ggplot2)
 library(dplyr)
+library(tidyr)
 ```
 
 # Analyse d'ADMIXTURE - erreurs de CV
@@ -2041,6 +2042,53 @@ texte_complet <- paste(output_list_K6_561_default_90_merged, collapse = " ")
 K6_90 <- unlist(strsplit(texte_complet, "\\s+"))
 nombre_apparitions <- table(K6_90)
 print(nombre_apparitions)
+```
+
+#### MM_31-20 - Admixture supervisée - K = 3
+
+```{r}
+setwd("~/Documents/Stage_NB/data/Qfiles/merged_data_1055_K3_supervised_561_95")
+
+# Lecture des données depuis le fichier
+Q_3_561_default <- read.table("merged_BeeMuSe_SeqApiPop_561_filtered_maf001_LD_default.3.r1.Q", header = FALSE)
+
+# Renommer les colonnes
+colnames(Q_3_561_default) <- c("Orange", "Noir", "Vert")
+
+# Créer un dataframe avec vos données
+data <- data.frame(
+  Row = 1:34,
+  Vert = c(0.137779, 0.106600, 0.144376, 0.121816, 0.115205, 0.156852, 0.116906, 0.128898, 0.108226, 0.127597,
+           0.125377, 0.143687, 0.139994, 0.118624, 0.105885, 0.114958, 0.125339, 0.111632, 0.139381, 0.097184,
+           0.103432, 0.127272, 0.146901, 0.258441, 0.131292, 0.121175, 0.153283, 0.121445, 0.106801, 0.148918,
+           0.110793, 0.116428, 0.268355, 0.143695),
+  Noir = c(0.000010, 0.208670, 0.000010, 0.000010, 0.000010, 0.357705, 0.000010, 0.179942, 0.000010, 0.000010,
+           0.000010, 0.000010, 0.005702, 0.201438, 0.209293, 0.198569, 0.183688, 0.181689, 0.000010, 0.189135,
+           0.000010, 0.000010, 0.000010, 0.010149, 0.000010, 0.000010, 0.000010, 0.000010, 0.000010, 0.000010,
+           0.005139, 0.004824, 0.000010, 0.000010),
+  Orange = c(0.862211, 0.684730, 0.855614, 0.878174, 0.884785, 0.485443, 0.883084, 0.691160, 0.891764, 0.872393,
+             0.874613, 0.856303, 0.854304, 0.679938, 0.684822, 0.686473, 0.690974, 0.706679, 0.860609, 0.713681,
+             0.896558, 0.872718, 0.853089, 0.731410, 0.868698, 0.878815, 0.846707, 0.878545, 0.893189, 0.851072,
+             0.884068, 0.878748, 0.731635, 0.856295),
+  Name = c("19_E5.CEL", "20_G5.CEL", "35_E10.CEL", "37_I10.CEL", "38_K10.CEL", "39_M10.CEL", "40_O10.CEL", "41_A12.CEL",
+        "42_C12.CEL", "49_A14.CEL", "53_I14.CEL", "54_K14.CEL", "56_O14.CEL", "4_H2.CEL", "5_J2.CEL", "6_L2.CEL", "7_N2.CEL",
+        "8_P2.CEL", "9_B4.CEL", "16_P4.CEL", "18_D6.CEL", "19_F6.CEL", "23_N6.CEL", "24_P6.CEL", "26_D8.CEL", "28_H8.CEL",
+        "29_J8.CEL", "378_H22.CEL", "379_J22.CEL", "380_L22.CEL", "381_N22.CEL", "382_P22.CEL", "384_D24.CEL", "385_F24.CEL")
+
+)
+
+# Convertir les données en un format long
+data_long <- pivot_longer(data, cols = c(Orange, Noir, Vert), names_to = "Color", values_to = "Proportion")
+
+# Créer un graphique à barres empilées
+ggplot(data_long, aes(x = Name, y = Proportion, fill = Color)) +
+  geom_bar(stat = "identity", position = "stack") +
+  labs(title = "Fonds génétiques - MM_31-20 (ID_2a) - BeeMuSe - K = 3 (seuil 0.95) - 1055 SNPs", y = "Proportion", x = "Individu") +
+  scale_fill_manual(values = c(Vert = "#018a16", Noir = "black", Orange = "#FE9001")) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  scale_y_continuous(breaks = seq(0, 1, 0.1)) +
+  coord_flip()
 ```
 
 ## Légende - CV plot error - Admixture
