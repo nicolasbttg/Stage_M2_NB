@@ -1277,7 +1277,7 @@ ggplot(data = eigenvec_refpop_seq_api_labels, aes(x = V3, y = V4, color = Label)
                                 "Mellifera Savoy", "Mellifera Porquerolles", "Mellifera Sollies", 
                                 "Ligustica Italy", "Carnica Slovenia", "Carnica Germany", 
                                 "Carnica Switzerland", "Carnica France", "Carnica Poland", "Caucasia")) +
-  theme(legend.position = c(0.49, 0.03), legend.justification = c(0, 0),
+  theme(legend.position = c(0.43, 0.03), legend.justification = c(0, 0),
         legend.background = element_rect(fill = "transparent"),
         legend.key.size = unit(1.2, "lines"),  
         legend.text = element_text(size = 11))  + 
@@ -1288,7 +1288,7 @@ ggplot(data = eigenvec_refpop_seq_api_labels, aes(x = V3, y = V4, color = Label)
         geom_bar(stat = "identity", fill = "steelblue", width = 0.8) +
         theme_minimal() +
         theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "none")
-    ), xmin = 0.105, xmax = 0.07, ymin = -0.11, ymax = -0.04)
+    ), xmin = 0.106, xmax = 0.065, ymin = -0.11, ymax = -0.03)
 ```
 
 ```{r}
@@ -1309,7 +1309,7 @@ ggplot(data = eigenvec_refpop_seq_api_labels, aes(x = V3, y = V4, color = Label)
                                 "Mellifera Savoy", "Mellifera Porquerolles", "Mellifera Sollies", 
                                 "Ligustica Italy", "Carnica Slovenia", "Carnica Germany", 
                                 "Carnica Switzerland", "Carnica France", "Carnica Poland", "Caucasia")) +
-  theme(legend.position = c(0.49, 0.03), legend.justification = c(0, 0),
+  theme(legend.position = c(0.45, 0.03), legend.justification = c(0, 0),
         legend.background = element_rect(fill = "transparent"),
         legend.key.size = unit(1.2, "lines"),  
         legend.text = element_text(size = 11))  + 
@@ -1343,7 +1343,7 @@ ggplot(data = eigenvec_refpop_seq_api_labels, aes(x = V3, y = V4, color = Label)
                                "Mellifera Savoy", "Mellifera Porquerolles", "Mellifera Sollies", 
                                "Ligustica Italy", "Carnica Slovenia", "Carnica Germany", 
                                "Carnica Switzerland", "Carnica France", "Carnica Poland", "Caucasia")) +  
-  theme(legend.position = c(0.49, 0.03), legend.justification = c(0, 0),
+  theme(legend.position = c(0.45, 0.03), legend.justification = c(0, 0),
         legend.background = element_rect(fill = "transparent"),
         legend.key.size = unit(1.2, "lines"),  
         legend.text = element_text(size = 11))  + 
@@ -1434,7 +1434,7 @@ ggplot(data = eigenvec_refpop_seq_api_labels, aes(x = V5, y = V6, color = Label)
   guides(color = guide_legend(override.aes = list(size = 3.5), ncol = 2))
 ```
 
-### 629 échantillons - SNPsBeeMuSe filtered (10256 high quality BeeMuSe SNPs)
+### 629 échantillons - SNPsBeeMuSe filtered
 
 #### No LD pruning - 10030 SNPS
 
@@ -1918,6 +1918,159 @@ ggplot(data = eigenvec_SNPsBeeMuSe_seq_api_labels, aes(x = V5, y = V6, color = L
 
 ### 561 échantillons - SNPsBeeMuSe filtered
 
+#### No LD pruning - 10030 SNPS
+
+##### PC1/PC2
+
+```{r}
+setwd("~/Documents/Stage_NB/data/SeqApiPop_561_SNPsBeeMuSe")
+
+# SNPsBeeMuSe filtrés
+eigenvec_SNPsBeeMuSe <- read.table("SeqApiPop_561_SNPsBeeMuSe_filtered_acp.eigenvec", header = F)
+eigenval_SNPsBeeMuSe <- read.table("SeqApiPop_561_SNPsBeeMuSe_filtered_acp.eigenval", header = F)
+
+seq_api_labels <- read.csv("~/Documents/Stage_NB/data/SeqApiPop_labels.csv")
+
+colnames(eigenvec_SNPsBeeMuSe)[colnames(eigenvec_SNPsBeeMuSe) == "V2"] <- "name"
+eigenvec_SNPsBeeMuSe_seq_api_labels <- merge(eigenvec_SNPsBeeMuSe, seq_api_labels, by = "name")
+
+eigen_percent_SNPsBeeMuSe <- round((eigenval_SNPsBeeMuSe / (sum(eigenval_SNPsBeeMuSe) )*100),2)
+
+# Clustering hiérarchique
+# Tree
+matrice_app_refpop <- read.table("SeqApiPop_561_SNPsBeeMuSe_filtered_acp.rel", header = FALSE)
+
+dist_matrice_refpop <- dist(matrice_app_refpop)
+hc_refpop <- hclust(dist_matrice_refpop, method = "ward.D2")
+plot(hc_refpop)
+
+# heatmap
+#heatplot(as.matrix(dist(matrice_app_refpop,diag=T)), cols.default = F, lowcol = 'blue', highcol='yellow', dualScale = F, scale='none', method='ward.D2')
+
+# Extraction des 301 individus des populations de référence
+eigenvec_SNPsBeeMuSe_seq_api_labels <- eigenvec_SNPsBeeMuSe_seq_api_labels[eigenvec_SNPsBeeMuSe_seq_api_labels$GeneticOrigin != 'Unknown' &
+                                                                 eigenvec_SNPsBeeMuSe_seq_api_labels$Label != 'Ariege Conservatory' &
+                                                                 eigenvec_SNPsBeeMuSe_seq_api_labels$Label != 'Brittany Conservatory' &
+                                                                 eigenvec_SNPsBeeMuSe_seq_api_labels$UniqueInHive != 'Unknown' &
+                                                                 eigenvec_SNPsBeeMuSe_seq_api_labels$UniqueInHive != 'Buckfast' &
+                                                                 eigenvec_SNPsBeeMuSe_seq_api_labels$GeneticOrigin != 'Buckfast', ]
+
+custom_colors_label2 <- c("black", "mediumpurple4", "mediumpurple3", "lightskyblue", "mediumvioletred", "hotpink1", "yellow", "gold", "orange", "chocolate", "brown", "olivedrab3", "mediumseagreen")
+
+lambda <- eigenval_SNPsBeeMuSe$V1
+variance_proportion <- lambda / sum(lambda)
+variance_df <- data.frame(PC = seq_along(variance_proportion), Variance = variance_proportion)
+
+ggplot(data = eigenvec_SNPsBeeMuSe_seq_api_labels, aes(x = V3, y = V4, color = Label)) +
+  geom_point() +
+  labs(title = "PCA Plot - reference populations", x = "PC1", y = "PC2") +
+  scale_color_manual(values = custom_colors_label2, 
+                     breaks = c("Ouessant Conservatory", "Colonsay Conservatory", "Iberiensis Spain", 
+                                "Savoy Conservatory", "Porquerolles Conservatory", "Sollies Conservatory", 
+                                "Ligustica Italy", "Carnica Slovenia", "Carnica Germany", 
+                                "Carnica Switzerland", "Carnica France", "Carnica Poland", "Caucasia France"),
+                     labels = c("Mellifera Ouessant", "Mellifera Colonsay", "Iberiensis Spain", 
+                                "Mellifera Savoy", "Mellifera Porquerolles", "Mellifera Sollies", 
+                                "Ligustica Italy", "Carnica Slovenia", "Carnica Germany", 
+                                "Carnica Switzerland", "Carnica France", "Carnica Poland", "Caucasia")) +
+  scale_y_reverse() +  
+  theme(legend.position = c(0.34, 0.02), legend.justification = c(0, 0),
+        legend.background = element_rect(fill = "transparent"),
+        legend.key.size = unit(1.2, "lines"),  
+        legend.text = element_text(size = 11))  + 
+  guides(color = guide_legend(override.aes = list(size = 3.5), ncol = 2)) +
+  annotation_custom(
+    ggplotGrob(
+      ggplot(variance_df, aes(x = factor(PC), y = Variance)) +
+        geom_bar(stat = "identity", fill = "steelblue", width = 0.8) +
+        theme_minimal() +
+        theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "none")
+    ), xmin = 0.039, xmax = 0.077, ymin = -0.04, ymax = -0.12)
+
+#ellipses autour des points selon Label
+ggplot(data = eigenvec_SNPsBeeMuSe_seq_api_labels, aes(x = V3, y = V4, color = Label)) +
+  geom_point() +
+  stat_ellipse(aes(group = Label), geom = "polygon", level = 0.97, alpha = 0, size = 0.2, color = "black") +
+  labs(title = "PCA Plot - reference populations", x = "PC1", y = "PC2") +
+  scale_color_manual(values = custom_colors_label2, 
+                     breaks = c("Ouessant Conservatory", "Colonsay Conservatory", "Iberiensis Spain", 
+                                "Savoy Conservatory", "Porquerolles Conservatory", "Sollies Conservatory", 
+                                "Ligustica Italy", "Carnica Slovenia", "Carnica Germany", 
+                                "Carnica Switzerland", "Carnica France", "Carnica Poland", "Caucasia France"),
+                     labels = c("Mellifera Ouessant", "Mellifera Colonsay", "Iberiensis Spain", 
+                                "Mellifera Savoy", "Mellifera Porquerolles", "Mellifera Sollies", 
+                                "Ligustica Italy", "Carnica Slovenia", "Carnica Germany", 
+                                "Carnica Switzerland", "Carnica France", "Carnica Poland", "Caucasia")) +
+  scale_y_reverse() +  
+  theme(legend.position = c(0.34, 0.02), legend.justification = c(0, 0),
+        legend.background = element_rect(fill = "transparent"),
+        legend.key.size = unit(1, "lines"),  
+        legend.text = element_text(size = 10))  + 
+  guides(color = guide_legend(override.aes = list(size = 3.5), ncol = 2)) 
+
+# ellipses avec couleur
+ggplot(data = eigenvec_SNPsBeeMuSe_seq_api_labels, aes(x = V3, y = V4, color = Label)) +
+  geom_point() +
+  stat_ellipse(aes(group = Label, fill = Label), geom = "polygon", level = 0.97, alpha = 0.2, size = 0.2, color = "black") +
+  labs(title = "PCA Plot - reference populations", x = "PC1", y = "PC2") +
+  scale_color_manual(values = custom_colors_label2, 
+                     breaks = c("Ouessant Conservatory", "Colonsay Conservatory", "Iberiensis Spain", 
+                                "Savoy Conservatory", "Porquerolles Conservatory", "Sollies Conservatory", 
+                                "Ligustica Italy", "Carnica Slovenia", "Carnica Germany", 
+                                "Carnica Switzerland", "Carnica France", "Carnica Poland", "Caucasia France"),
+                     labels = c("Mellifera Ouessant", "Mellifera Colonsay", "Iberiensis Spain", 
+                                "Mellifera Savoy", "Mellifera Porquerolles", "Mellifera Sollies", 
+                                "Ligustica Italy", "Carnica Slovenia", "Carnica Germany", 
+                                "Carnica Switzerland", "Carnica France", "Carnica Poland", "Caucasia")) +
+  scale_fill_manual(values = custom_colors_label2, 
+                    breaks = c("Ouessant Conservatory", "Colonsay Conservatory", "Iberiensis Spain", 
+                               "Savoy Conservatory", "Porquerolles Conservatory", "Sollies Conservatory", 
+                               "Ligustica Italy", "Carnica Slovenia", "Carnica Germany", 
+                               "Carnica Switzerland", "Carnica France", "Carnica Poland", "Caucasia France"),
+                    labels = c("Mellifera Ouessant", "Mellifera Colonsay", "Iberiensis Spain", 
+                               "Mellifera Savoy", "Mellifera Porquerolles", "Mellifera Sollies", 
+                               "Ligustica Italy", "Carnica Slovenia", "Carnica Germany", 
+                               "Carnica Switzerland", "Carnica France", "Carnica Poland", "Caucasia")) +  
+  scale_y_reverse() +  
+  theme(legend.position = c(0.34, 0.02), legend.justification = c(0, 0),
+        legend.background = element_rect(fill = "transparent"),
+        legend.key.size = unit(1, "lines"),  
+        legend.text = element_text(size = 10))  + 
+  guides(color = guide_legend(override.aes = list(size = 3.5), ncol = 2))
+```
+
+##### PC3/PC4
+
+```{r}
+ggplot(data = eigenvec_SNPsBeeMuSe_seq_api_labels, aes(x = V5, y = V6, color = Label)) +
+  geom_point() +
+  labs(title = "PCA Plot - reference populations", x = "PC3", y = "PC4") +
+  scale_color_manual(values = custom_colors_label2, 
+                     breaks = c("Ouessant Conservatory", "Colonsay Conservatory", "Iberiensis Spain", 
+                                "Savoy Conservatory", "Porquerolles Conservatory", "Sollies Conservatory", 
+                                "Ligustica Italy", "Carnica Slovenia", "Carnica Germany", 
+                                "Carnica Switzerland", "Carnica France", "Carnica Poland", "Caucasia France"),
+                     labels = c("Mellifera Ouessant", "Mellifera Colonsay", "Iberiensis Spain", 
+                                "Mellifera Savoy", "Mellifera Porquerolles", "Mellifera Sollies", 
+                                "Ligustica Italy", "Carnica Slovenia", "Carnica Germany", 
+                                "Carnica Switzerland", "Carnica France", "Carnica Poland", "Caucasia")) +
+  scale_y_reverse() +  
+  theme(legend.position = c(0.53, 0.7), legend.justification = c(0, 0),
+        legend.background = element_rect(fill = "transparent"),
+        legend.key.size = unit(1.2, "lines"),  
+        legend.text = element_text(size = 11))  + 
+  guides(color = guide_legend(override.aes = list(size = 3.5), ncol = 2)) +
+  annotation_custom(
+    ggplotGrob(
+      ggplot(variance_df, aes(x = factor(PC), y = Variance)) +
+        geom_bar(stat = "identity", fill = "steelblue", width = 0.8) +
+        theme_minimal() +
+        theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "none")
+    ), xmin = -0.046, xmax = -0.024, ymin = 0.08, ymax = 0.02)
+```
+
+#### 
+
 #### MAF \> 0.01 - LD pruning = 0.3 (fenêtre de 1749 SNPs et pas de 175 bp) - 3848 SNPs
 
 ```{r}
@@ -2321,7 +2474,23 @@ ggplot(merged_3, aes(x = V3, y = V4, label = ID_breeder, color = ID_breeder)) +
 ```
 
 ```{r}
-  # ACP - ID_2a : pedigree, même reine mère des reines génotypées
+  # ACP - pedigree : ID_2a (même reine mère des reines génotypées)
+# I - même couleur et forme des points pour les 29 groupes
+
+ggplot(merged_3, aes(x = V3, y = V4, label = ID_2a)) +
+  geom_point(size = 1, color = "red") + 
+  labs(title = "PCA Plot", x = "PC1", y = "PC2") +
+  theme(legend.position = "right") +
+  annotation_custom(
+    ggplotGrob(
+      ggplot(variance_df, aes(x = factor(PC), y = Variance)) +
+        geom_bar(stat = "identity", fill = "steelblue", width = 0.8) +
+        theme_minimal() +
+        theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "none")
+    ), xmin = -0.1, xmax = -0.16, ymin = 0.05, ymax = -0.01)
+
+# II - couleurs différentes et même forme de points pour les 29 groupes
+
 ggplot(merged_3, aes(x = V3, y = V4, label = ID_2a, color = ID_2a)) +
   geom_point(size = 1) +  
   scale_color_manual(values = c("#FF0000FF", "#FF3300FF", "#FF6600FF", "#FF9900FF", "#FFCC00FF", 
@@ -2340,9 +2509,21 @@ ggplot(merged_3, aes(x = V3, y = V4, label = ID_2a, color = ID_2a)) +
         theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "none")
     ), xmin = -0.1, xmax = -0.16, ymin = 0.05, ymax = -0.01)
 
+# III - couleurs et formes différentes, pour mieux distinguer les 29 groupes
 
-ggplot(merged_3, aes(x = V3, y = V4, label = ID_2a)) +
-  geom_point(size = 1, color = "red") + 
+values_color <- c("#FF0000FF", "#FF3300FF", "#FF6600FF", "#FF9900FF", "#FFCC00FF", 
+                  "#FFFF00FF", "#CCFF00FF", "#99FF00FF", "#66FF00FF", "#33FF00FF", 
+                  "#00FF00FF", "#00FF33FF", "#00FF66FF", "#00FF99FF", "#00FFCCFF", 
+                  "#00FFFFFF", "#00CCFFFF", "#0099FFFF", "#0066FFFF", "#0033FFFF", 
+                  "#0000FFFF", "#3300FFFF", "#6600FFFF", "#9900FFFF", "#CC00FFFF", 
+                  "#FF00FFFF", "#FF00CCFF", "#FF0099FF", "#FF0066FF")
+
+values_shape <- c(16, 15, 17, 18, 0, 1, 2, 6, 5, 3, 4, 9, 8, 16, 15, 17, 18, 0, 1, 2, 6, 5, 3, 4, 9, 8, 16, 15, 17)
+
+ggplot(merged_3, aes(x = V3, y = V4, label = ID_2a, color = ID_2a, shape = ID_2a)) +
+  geom_point(size = 1.5) +
+  scale_color_manual(values = values_color) +
+  scale_shape_manual(values = values_shape) +
   labs(title = "PCA Plot", x = "PC1", y = "PC2") +
   theme(legend.position = "right") +
   annotation_custom(
@@ -2355,7 +2536,7 @@ ggplot(merged_3, aes(x = V3, y = V4, label = ID_2a)) +
 ```
 
 ```{r}
-# Visualisaiton ACP PC1 PC2 avec ellipses de seuil de confiance de 0.97
+# Visualisation ACP PC1 PC2 avec ellipses de seuil de confiance de 0.97
 ggplot(merged_3, aes(x = V3, y = V4, label = ID_2a, color = ID_2a)) +
   geom_point(size = 0.8) +  
   stat_ellipse(aes(group = ID_2a), geom = "polygon", level = 0.97, alpha = 0, size = 0.1, color = "black") +
@@ -2396,7 +2577,23 @@ length(values_in_A_not_in_B)
 #### PC3/PC4
 
 ```{r}
- # ACP PC3 PC4 - ID_2a : reines mères des reines génotypées
+ # ACP - ID_2a : reines mères des reines génotypées
+# I - même couleur et forme pour les 29 groupes
+
+ggplot(merged_3, aes(x = V5, y = V6, label = ID_2a)) +
+  geom_point(size = 1, color = "red") +  
+  labs(title = "PCA Plot - BeeMuSe", x = "PC3", y = "PC4") +
+  theme(legend.position = "right") +
+  annotation_custom(
+    ggplotGrob(
+      ggplot(variance_df, aes(x = factor(PC), y = Variance)) +
+        geom_bar(stat = "identity", fill = "steelblue", width = 0.8) +
+        theme_minimal() +
+        theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "none")
+    ), xmin = -0.055, xmax = -0.09, ymin = -0.04, ymax = -0.1)
+
+# II - couleurs différentes et même forme pour les 29 groupes
+
 ggplot(merged_3, aes(x = V5, y = V6, label = ID_2a, color = ID_2a)) +
   geom_point(size = 1) + 
   scale_color_manual(values = c("#FF0000FF", "#FF3300FF", "#FF6600FF", "#FF9900FF", "#FFCC00FF", 
@@ -2431,9 +2628,22 @@ ggplot(subset(merged_3, ID_2a %in% c( "BH_44","BH_7-19", "ER_13-19","MM_37-20", 
   labs(title = "PCA Plot - BeeMuSe", x = "PC3", y = "PC4") +
   theme(legend.position = "right")
 
-ggplot(merged_3, aes(x = V5, y = V6, label = ID_2a)) +
-  geom_point(size = 1, color = "red") +  
-  labs(title = "PCA Plot - BeeMuSe", x = "PC3", y = "PC4") +
+# III - couleurs et formes différentes, pour mieux distinguer les 29 groupes
+
+values_color <- c("#FF0000FF", "#FF3300FF", "#FF6600FF", "#FF9900FF", "#FFCC00FF", 
+                  "#FFFF00FF", "#CCFF00FF", "#99FF00FF", "#66FF00FF", "#33FF00FF", 
+                  "#00FF00FF", "#00FF33FF", "#00FF66FF", "#00FF99FF", "#00FFCCFF", 
+                  "#00FFFFFF", "#00CCFFFF", "#0099FFFF", "#0066FFFF", "#0033FFFF", 
+                  "#0000FFFF", "#3300FFFF", "#6600FFFF", "#9900FFFF", "#CC00FFFF", 
+                  "#FF00FFFF", "#FF00CCFF", "#FF0099FF", "#FF0066FF")
+
+values_shape <- c(16, 15, 17, 18, 0, 1, 2, 6, 5, 3, 4, 9, 8, 16, 15, 17, 18, 0, 1, 2, 6, 5, 3, 4, 9, 8, 16, 15, 17)
+
+ggplot(merged_3, aes(x = V5, y = V6, label = ID_2a, color = ID_2a, shape = ID_2a)) +
+  geom_point(size = 1.5) +
+  scale_color_manual(values = values_color) +
+  scale_shape_manual(values = values_shape) +
+  labs(title = "PCA Plot", x = "PC3", y = "PC4") +
   theme(legend.position = "right") +
   annotation_custom(
     ggplotGrob(
