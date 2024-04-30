@@ -17,9 +17,6 @@ library(gplots)
 library(pheatmap)
 library(MASS)
 ```
-
-Lien vers les scripts bash et commandes utilisées issus de la publication de Wragg et al., 2022 : <https://github.com/avignal5/SeqApiPop/tree/v1.5>
-
 ### Création des fichiers des échantillons SeqApiPop - BeeMuSe
 
 #### Garder seulement les populations de références SeqApiPop - 301 Samples
