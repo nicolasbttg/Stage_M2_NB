@@ -1734,6 +1734,75 @@ ggplot(merge_cv_error, aes(x = factor(merge_cv_error[,1]), y = merge_cv_error[,2
 
 #### 561 échantillons - LD pruning = 0.1 (fenêtre de 50 et pas de 10 bp) - 1055 SNPs
 
+##### K = 3 
+
+```{r}
+setwd("~/Documents/Stage_NB/data/merged_data_1055_561_supervised")
+
+# Étape 1: Créer une liste vide pour stocker les données
+liste_de_donnees <- list()
+
+# Étape 2: Parcourir les fichiers
+for (i in 1:30) {
+  # Générer le nom du fichier
+  merge_cv_error <- paste0('merged_BeeMuSe_SeqApiPop_561_filtered_MAF001_LD_default_K3_90_supervised_', i, '.cv.error')
+  donnees <- read.table(merge_cv_error, header = FALSE)
+  # Ajouter les données à la liste
+  liste_de_donnees[[i]] <- donnees
+}
+
+# Étape 3: Combiner les données en une seule structure 
+donnees_combinees <- do.call(rbind, liste_de_donnees)
+
+# Étape 4: Enregistrer le résultat final sans numéro de lignes
+write.table(donnees_combinees, "merge_cv_error", sep = "\t", col.names = FALSE, row.names = FALSE)
+
+merge_cv_error <- read.table("merge_cv_error", header = F)
+
+#box plot LD03 filtered
+ggplot(merge_cv_error, aes(x = factor(merge_cv_error[,1]), y = merge_cv_error[,2])) +
+  geom_hline(
+    yintercept = c(0.605, 0.606, 0.607, 0.608, 0.609, 0.610, 0.611, 0.612, 0.613, 0.614, 0.615),
+    color = "black",
+    linetype = "solid",
+    size = 0.5
+  ) +
+  geom_boxplot(width = 0.5, fill = "yellow", color = "black") +
+  labs(title = "Cross-validation Error Plot",
+       x = "K",
+       y = "CV") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.001)) +
+  theme_minimal() +
+  theme(
+    panel.border = element_rect(color = "black", fill = NA, size = 1),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank()
+  ) +
+  coord_cartesian(ylim = c(0.605, 0.614))
+
+#jitter plot LD03 filtered
+ggplot(merge_cv_error, aes(x = factor(merge_cv_error[,1]), y = merge_cv_error[,2])) +
+  geom_hline(
+    yintercept = c(0.605, 0.606, 0.607, 0.608, 0.609, 0.610, 0.611, 0.612, 0.613, 0.614, 0.615),
+    color = "black",
+    linetype = "solid",
+    size = 0.5
+  ) +
+  geom_boxplot(width = 0.5, fill = "yellow", color = "black", outlier.shape = NA) +
+  geom_jitter(width = 0.2, alpha = 0.7, color = "red") +
+  labs(title = "Cross-validation Error Plot",
+       x = "K",
+       y = "CV") +
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.001)) +
+  theme_minimal() +
+  theme(
+    panel.border = element_rect(color = "black", fill = NA, size = 1),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank()
+  ) +
+  coord_cartesian(ylim = c(0.605, 0.614))
+```
+
 ##### K = 5
 
 ```{r}
@@ -1835,7 +1904,7 @@ merge_cv_error <- read.table("merge_cv_error", header = F)
 #box plot LD03 filtered
 ggplot(merge_cv_error, aes(x = factor(merge_cv_error[,1]), y = merge_cv_error[,2])) +
   geom_hline(
-    yintercept = c(0.586,0.587,0.588,0.589,0.59, 0.591, 0.592, 0.593,0.594,0.595),
+    yintercept = c(0.586,0.587,0.588,0.589,0.59, 0.591, 0.592, 0.593,0.594,0.595, 0.596),
     color = "black",
     linetype = "solid",
     size = 0.5
@@ -1851,12 +1920,12 @@ ggplot(merge_cv_error, aes(x = factor(merge_cv_error[,1]), y = merge_cv_error[,2
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank()
   ) +
-  coord_cartesian(ylim = c(0.587, 0.595))
+  coord_cartesian(ylim = c(0.587, 0.596))
 
 #jitter plot LD03 filtered
 ggplot(merge_cv_error, aes(x = factor(merge_cv_error[,1]), y = merge_cv_error[,2])) +
   geom_hline(
-    yintercept = c(0.587,0.588,0.589,0.59, 0.591, 0.592, 0.593,0.594,0.595),
+    yintercept = c(0.587,0.588,0.589,0.59, 0.591, 0.592, 0.593,0.594,0.595, 0.596),
     color = "black",
     linetype = "solid",
     size = 0.5
@@ -1873,7 +1942,7 @@ ggplot(merge_cv_error, aes(x = factor(merge_cv_error[,1]), y = merge_cv_error[,2
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank()
   ) +
-  coord_cartesian(ylim = c(0.587, 0.595))
+  coord_cartesian(ylim = c(0.587, 0.596))
 ```
 
 ### Admixture supervisé - Création du fichier liste individu / population
@@ -2090,7 +2159,7 @@ output_list_K6_561_merged <- gsub("Beemuse", "-", output_list_K6_561_merged)
 writeLines(output_list_K6_561_merged, "merged_data_K6_561.pop")
 ```
 
-### 561 échantillons - MAF \> 0.01 - LD pruning = 0.1 (fenêtre de 50 SNPs et pas de 10 bp) - 1055 SNPs
+#### 561 échantillons - MAF \> 0.01 - LD pruning = 0.1 (fenêtre de 50 SNPs et pas de 10 bp) - 1055 SNPs
 
 ##### K = 3
 
@@ -2173,14 +2242,54 @@ writeLines(output_list_K3_561_default_90_merged, "merged_data_K3_561_LD_default_
 # seuil 0.95
 texte_complet <- paste(output_list_K3_561_default_95_merged, collapse = " ")
 K3_95 <- unlist(strsplit(texte_complet, "\\s+"))
-nombre_apparitions <- table(K3_95)
-print(nombre_apparitions)
+nombre_apparitions_95 <- table(K3_95)
+print(nombre_apparitions_95)
 
 # seuil 0.90
 texte_complet <- paste(output_list_K3_561_default_90_merged, collapse = " ")
 K3_90 <- unlist(strsplit(texte_complet, "\\s+"))
-nombre_apparitions <- table(K3_90)
-print(nombre_apparitions)
+nombre_apparitions_90 <- table(K3_90)
+print(nombre_apparitions_90)
+```
+
+```{r}
+# Définition des valeurs et labels pour le seuil 0.95
+valeurs_95 <- c(428, 55, 63, 15)
+labels_95 <- c("Unknown", "Black", "Orange", "Green")
+df_95 <- data.frame(Reference_Individuals = labels_95, values = valeurs_95)
+
+# Création du graphique (Pie Chart) pour le seuil 0.95
+ggplot(df_95, aes(x = "", y = values, fill = Reference_Individuals)) +
+  geom_col(width = 1, color = "white") +  
+  geom_label(aes(label = values),
+             color = "white",
+             position = position_stack(vjust = 0.5),
+             show.legend = FALSE,
+             size = 5.5,             
+             fontface = "bold") +  
+  coord_polar(theta = "y") +
+  scale_fill_manual(values = c("black", "#018a16", "#FE9001", "lightgrey")) + 
+  theme_void() +
+  ggtitle("Pie Chart - Seuil 0.95")
+
+# Définition des valeurs et labels pour le seuil 0.90
+valeurs_90 <- c(348, 77, 119, 17)
+labels_90 <- c("Unknown", "Black", "Orange", "Green")
+df_90 <- data.frame(Reference_Individuals = labels_95, values = valeurs_90)
+
+# Création du graphique (Pie Chart) pour le seuil 0.90
+ggplot(df_90, aes(x = "", y = values, fill = Reference_Individuals)) +
+  geom_col(width = 1, color = "white") +  
+  geom_label(aes(label = values),
+             color = "white",
+             position = position_stack(vjust = 0.5),
+             show.legend = FALSE,
+             size = 6,             
+             fontface = "bold") +  
+  coord_polar(theta = "y") +
+  scale_fill_manual(values = c("black", "#018a16", "#FE9001", "lightgrey")) + 
+  theme_void() +
+  ggtitle("Pie Chart - Seuil 0.90")
 ```
 
 ##### K = 5
@@ -2276,6 +2385,46 @@ texte_complet <- paste(output_list_K5_561_default_90_merged, collapse = " ")
 K5_90 <- unlist(strsplit(texte_complet, "\\s+"))
 nombre_apparitions <- table(K5_90)
 print(nombre_apparitions)
+```
+
+```{r}
+# Définition des valeurs et labels pour le seuil 0.95
+valeurs_95 <- c(430, 21, 49, 24, 22, 15)
+labels_95 <- c("Unknown", "Yellow", "Black", "Orange", "Red", "Green")
+df_95 <- data.frame(Reference_Individuals = labels_95, values = valeurs_95)
+
+# Création du graphique (Pie Chart) pour le seuil 0.95
+ggplot(df_95, aes(x = "", y = values, fill = Reference_Individuals)) +
+  geom_col(width = 1, color = "white") +  
+  geom_label(aes(label = values),
+             color = "white",
+             position = position_stack(vjust = 0.5),
+             show.legend = FALSE,
+             size = 5.5,             
+             fontface = "bold") +  
+  coord_polar(theta = "y") +
+  scale_fill_manual(values = c("black", "#018a16", "#FE9001", "#FE0101", "lightgrey", "#EDFE01")) + 
+  theme_void() +
+  ggtitle("Pie Chart - Seuil 0.95")
+
+# Définition des valeurs et labels pour le seuil 0.90
+valeurs_90 <- c(373, 23, 74, 47, 27, 17)
+labels_90 <- c("Unknown", "Yellow", "Black", "Orange", "Red", "Green")
+df_90 <- data.frame(Reference_Individuals = labels_90, values = valeurs_90)
+
+# Création du graphique (Pie Chart) pour le seuil 0.90
+ggplot(df_90, aes(x = "", y = values, fill = Reference_Individuals)) +
+  geom_col(width = 1, color = "white") +  
+  geom_label(aes(label = values),
+             color = "white",
+             position = position_stack(vjust = 0.5),
+             show.legend = FALSE,
+             size = 6,             
+             fontface = "bold") +  
+  coord_polar(theta = "y") +
+  scale_fill_manual(values = c("black", "#018a16", "#FE9001", "#FE0101", "lightgrey", "#EDFE01")) + 
+  theme_void() +
+  ggtitle("Pie Chart - Seuil 0.90")
 ```
 
 ##### K = 6
@@ -2376,6 +2525,38 @@ texte_complet <- paste(output_list_K6_561_default_90_merged, collapse = " ")
 K6_90 <- unlist(strsplit(texte_complet, "\\s+"))
 nombre_apparitions <- table(K6_90)
 print(nombre_apparitions)
+```
+
+```{r}
+# Définition des valeurs et labels pour le seuil 0.95
+valeurs_95 <- c(463, 12, 18, 11, 20, 22, 15)
+labels_95 <- c("Unknown", "Blue", "Yellow", "Black", "Orange", "Red", "Green")
+df_95 <- data.frame(Reference_Individuals = labels_95, values = valeurs_95)
+
+# Création du graphique (Pie Chart) pour le seuil 0.95
+ggplot(df_95, aes(x = "", y = values, fill = Reference_Individuals)) +
+  geom_col(width = 1, color = "white") +  
+  geom_text(aes(label = values),  color = "white", size = 6,  fontface = "bold",
+            position = position_stack(vjust = 0.5)) + 
+  coord_polar(theta = "y") +
+  scale_fill_manual(values = c("black", "#0603a6", "#018a16", "#FE9001", "#FE0101", "lightgrey", "#EDFE01")) + 
+  theme_void() +
+  ggtitle("Pie Chart - Seuil 0.95")
+
+# Définition des valeurs et labels pour le seuil 0.90
+valeurs_90 <- c(418, 14, 21, 24, 42, 26, 16)
+labels_90 <- c("Unknown", "Blue", "Yellow", "Black", "Orange", "Red", "Green")
+df_90 <- data.frame(Reference_Individuals = labels_90, values = valeurs_90)
+
+# Création du graphique (Pie Chart) pour le seuil 0.90
+ggplot(df_90, aes(x = "", y = values, fill = Reference_Individuals)) +
+  geom_col(width = 1, color = "white") +  
+  geom_text(aes(label = values),  color = "white", size = 6,  fontface = "bold",
+            position = position_stack(vjust = 0.5)) +
+  coord_polar(theta = "y") +
+  scale_fill_manual(values = c("black", "#0603a6", "#018a16", "#FE9001", "#FE0101", "lightgrey", "#EDFE01")) + 
+  theme_void() +
+  ggtitle("Pie Chart - Seuil 0.95")
 ```
 
 #### MM_31-20 - Admixture supervisée - K = 3
