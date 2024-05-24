@@ -595,6 +595,7 @@ On extrait les individus de même famille ID_2a après avoir effectué la comman
 ```{r}
 setwd("~/Documents/Stage_NB/data/IBD") 
 
+beemuse_genome <- read.table("BeeMuse_genome_full.genome", header=TRUE) 
 beemuse_BAH_20_19_genome <- read.table("BAH_20-19.genome", header=TRUE) 
 beemuse_BBS_6_19_genome <- read.table("BBS_6-19.genome", header=TRUE) 
 beemuse_BER_11_19_genome <- read.table("BER_11-19.genome", header=TRUE) 
@@ -625,74 +626,6 @@ beemuse_SJ_30_20_genome <- read.table("SJ_30-20.genome", header=TRUE)
 beemuse_TL_13_20_genome <- read.table("TL_13-20.genome", header=TRUE) 
 beemuse_TL_19_20_genome <- read.table("TL_19-20.genome", header=TRUE) 
 beemuse_unknown_genome <- read.table("Unknown.genome", header=TRUE) 
-```
-
-##### Analyse IBD entre les 748 échantillons
-
-```{r}
-similarity_matrix <- acast(beemuse_genome, IID1 ~ IID2, value.var = "PI_HAT")
-
-ggplot(beemuse_genome, aes(x = "", y = DST, fill = "IBS")) +
-  geom_violin(trim = FALSE, color = "black") +
-  geom_boxplot(width = 0.1, fill = alpha("white", 0), color = "black", position = position_dodge(width = 0.75)) +
-  scale_fill_manual(values = "lightblue") + 
-  labs(title = "Violin Plot - IBS",
-       x = "", y = "IBS") +
-  theme_minimal() +
-  scale_y_continuous(limits = c(0, 1)) +
-  coord_flip()
-
-ggplot(beemuse_genome, aes(x = "", y = IBS0/(IBS0+IBS1+IBS2), fill = "IBS0")) +
-  geom_violin(trim = FALSE, color = "black") +
-  geom_boxplot(width = 0.1, fill = alpha("white", 0), color = "black", position = position_dodge(width = 0.75)) +
-  scale_fill_manual(values = "lightblue") + 
-  labs(title = "Violin Plot - IBS0",
-       x = "", y = "IBS0") +
-  theme_minimal() +
-  scale_y_continuous(limits = c(0, 1)) +
-  coord_flip()
-
-ggplot(beemuse_genome, aes(x = "", y = PI_HAT, fill = "IBD")) +
-  geom_violin(trim = FALSE, color = "black") +
-  geom_boxplot(width = 0.1, fill = alpha("white", 0), color = "black", position = position_dodge(width = 0.75)) +
-  scale_fill_manual(values = "lightblue") + 
-  labs(title = "Violin Plot - IBD",
-       x = "", y = "IBD") +
-  theme_minimal() +
-  scale_y_continuous(limits = c(0, 1)) +
-  coord_flip()
-
-# Tracer la heatmap
-ggplot(melt(similarity_matrix), aes(Var1, Var2, fill = value)) +
-  geom_tile() +
-  scale_fill_gradient(low = "blue", high = "red") +
-  labs(title = "Heatmap - IBD - BeeMuSe",
-       x = "Individu 1",
-       y = "Individu 2") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-# Calcul de la matrice de similarité
-similarity_matrix <- as.matrix(similarity_matrix)
-
-# Calcul de la distance euclidienne
-distance <- dist(1 - similarity_matrix)
-
-# Création du dendrogramme
-dendrogram <- hclust(distance)
-plot(dendrogram, main = "Cluster Dendrogram - IBD Similarity")
-
-#library(MASS)
-# MDS
-mds <- cmdscale(distance)
-
-# Création du plot MDS avec noms d'individus
-plot(mds, xlab = "Dimension 1", ylab = "Dimension 2", main = "MDS Plot - IBD Similarity")
-text(mds, labels = rownames(similarity_matrix), pos = c(3, 4), col = "black", cex = 0.6)
-
-# Distribution de la similarité
-ggplot(beemuse_genome, aes(x = PI_HAT)) +
-  geom_density(fill = "lightblue", alpha = 0.7) +
-  labs(title = "Distribution Plot - IBD Similarity", x = "Similarity", y = "Density")
 ```
 
 ##### Analyse IBD - ID_2a - 29 groupes + Unknown (pedigree inconnue)
